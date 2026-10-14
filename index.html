@@ -221,6 +221,28 @@ input:focus,select:focus{background:#fff}
   .crow .u{grid-area:u}
   .crow>select{grid-area:g}
 }
+
+/* my subjects */
+.steps{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px;margin-bottom:22px}
+@media (max-width:1000px){.steps{grid-template-columns:minmax(0,1fr)}}
+.stepno{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:linear-gradient(160deg,#d0262b,#7c1014);color:#fff;font-size:11px;margin-right:10px;vertical-align:1px}
+.pickrow{display:flex;flex-direction:column;gap:12px}
+.seg.big{display:flex;flex-wrap:wrap;width:100%;gap:4px;border-radius:14px;padding:4px}
+.seg.big button{flex:1 1 0;font-size:13px;padding:11px 10px;border-radius:11px;min-width:0}
+.seg.big button[aria-pressed="true"]{background:linear-gradient(160deg,#d0262b,#7c1014);color:#fff;box-shadow:0 4px 12px rgba(176,30,34,.3)}
+.howto{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:13px}
+.crow.m{grid-template-columns:120px minmax(220px,1fr) 64px 110px 96px;min-width:640px}
+.crow .act{padding:7px 12px}
+.hint{display:block;margin:6px auto 0;background:var(--accent-soft);color:var(--accent);border:0;border-radius:999px;font:600 11px var(--f);padding:4px 10px;cursor:pointer;text-transform:none}
+.semfoot.big{font-size:14px}
+.semfoot.big b{font-size:18px;color:var(--accent)}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent);font:inherit;font-weight:600;text-decoration:underline;cursor:pointer}
+@media (max-width:600px){
+  .crow.m{grid-template-columns:minmax(0,1fr) 40px 96px;grid-template-areas:"code u g" "title title act";min-width:0}
+  .crow.m .act{grid-area:act}
+  .hint{margin-left:0}
+  .seg.big button{flex:1 1 40%}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -232,9 +254,10 @@ input:focus,select:focus{background:#fff}
       <div class="brand-name">HAU SOC Grader</div>
     </div>
     <nav class="nav" role="tablist" aria-label="Sections">
+      <button class="nav-item" role="tab" id="tab-mine" data-act="tab" data-t="mine">My Subjects</button>
       <button class="nav-item" role="tab" id="tab-course" data-act="tab" data-t="course">Course Grade</button>
       <div class="subnav" id="subnav"></div>
-      <button class="nav-item" role="tab" id="tab-gwa" data-act="tab" data-t="gwa">GWA Calculator</button>
+      <button class="nav-item" role="tab" id="tab-gwa" data-act="tab" data-t="gwa">All Semesters</button>
       <button class="nav-item" role="tab" id="tab-ref" data-act="tab" data-t="ref">Grading Rules</button>
     </nav>
     <div class="side-foot">© HAU-SOC-GRADER · BSIT Web Dev 2022</div>
@@ -242,6 +265,7 @@ input:focus,select:focus{background:#fff}
   <main class="main">
     <h1 class="page-title" id="pageTitle">Course Grade Calculator</h1>
     <div id="root">
+      <section class="panel" id="panel-mine"></section>
       <section class="panel" id="panel-course"></section>
       <section class="panel" id="panel-gwa"></section>
       <section class="panel" id="panel-ref"></section>
@@ -283,6 +307,7 @@ function blankSubject(){return {id:'s'+Date.now()+Math.floor(Math.random()*1e4),
 let S=null;
 try{S=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){S=null}
 if(!S||!S.subjects||!S.subjects.length){const sub=sampleSubject();S={tab:'course',subjects:[sub],cur:sub.id,gwa:{grades:{},elect:{},nstp:false}}}
+if(S.v!==2){S.v=2;S.tab='mine'}S.year=S.year||3;S.sem=S.sem||1;
 S.gwa=S.gwa||{grades:{},elect:{},nstp:false};S.gwa.grades=S.gwa.grades||{};S.gwa.elect=S.gwa.elect||{};
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function sub(){return S.subjects.find(x=>x.id===S.cur)||S.subjects[0]}
@@ -365,6 +390,7 @@ function renderCourse(){
   document.getElementById('panel-course').innerHTML=`<div class="course">
    <div>
     <div class="card setup"><h2>Subject Data</h2>
+    <div><button class="btn" data-act="tab" data-t="mine">← Back to my subjects</button></div>
     <div class="subjrow">
       <label class="f" for="subSel">Subject<select id="subSel">${opts}</select></label>
       <button class="btn" data-act="add-sub">+ New subject</button>
@@ -387,7 +413,7 @@ function renderCourse(){
     <div class="card"><h2 id="sumTitle"></h2>
       <div class="terms" id="terms"></div>
       <p class="note">Each term grade uses the cumulative average up to that term, the same way the ERP computes it.</p>
-      <div style="display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap"><button class="btn primary" data-act="send">Put final grade in GWA</button></div>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap"><button class="btn primary" data-act="send">Save as my grade</button></div>
       <div class="msg" id="sendMsg"></div>
     </div>
     <div class="card"><h3>What you need on the Finals exam</h3>
@@ -485,6 +511,52 @@ function updateGWA(){
   document.getElementById('gLatin').textContent=latin;
 }
 
+
+/* ---------- my subjects panel ---------- */
+const YEARS=['1st Year','2nd Year','3rd Year','4th Year'],SEMS=['1st Semester','2nd Semester'];
+function semIdx(){return (S.year-1)*2+(S.sem-1)}
+function calcGradeFor(code){const x=S.subjects.find(q=>(q.code||'').toUpperCase()===code);if(!x)return null;const R=compute(x);return R[2].grade}
+function renderMine(){
+  const k=semIdx(),sem=CUR[k];
+  const rows=rowsOf(sem).map(r=>{
+    const isE=/^ELECTIVE/.test(r.code);const sel=S.gwa.grades[r.code]||'';
+    let title=esc(r.title);
+    if(isE){const ch=S.gwa.elect[r.code]||'';title=`${esc(r.title)}<select class="elec" id="me-${r.code}" data-g="e.${r.code}" aria-label="Choose ${esc(r.title)}"><option value="">Choose elective…</option>${ELECT.map(e=>`<option value="${e[0]}"${ch===e[0]?' selected':''}>${e[0]} · ${esc(e[1])}</option>`).join('')}</select>`}
+    const lookup=isE?(S.gwa.elect[r.code]||''):r.code;const cg=lookup?calcGradeFor(lookup):null;
+    const hint=cg!=null&&(!sel||+sel!==cg)?`<button class="hint" data-act="use" data-code="${r.code}" data-g="${cg.toFixed(2)}">Calculator says ${cg.toFixed(2)} · use it</button>`:'';
+    return `<div class="crow m"><div class="code">${r.code}${r.nstp?'<small>NSTP</small>':''}</div><div class="title">${title}${hint}</div><div class="u">${r.units.toFixed(2)}</div>
+      <select id="m-${r.code}" data-g="g.${r.code}" aria-label="Final grade for ${r.code}">${GOPTS.map(o=>`<option value="${o[0]}"${sel===o[0]?' selected':''}>${o[1]}</option>`).join('')}</select>
+      <button class="btn act" data-act="compute" data-code="${r.code}" data-name="${esc(r.title)}">Compute</button></div>`}).join('');
+  document.getElementById('panel-mine').innerHTML=`
+   <div class="steps">
+    <div class="card"><h2><span class="stepno">1</span>Choose your year and semester</h2>
+      <div class="pickrow">
+        <div class="seg big" role="group" aria-label="Year level">${YEARS.map((y,i)=>`<button data-act="year" data-v="${i+1}" aria-pressed="${S.year===i+1}">${y}</button>`).join('')}</div>
+        <div class="seg big" role="group" aria-label="Semester">${SEMS.map((y,i)=>`<button data-act="sem" data-v="${i+1}" aria-pressed="${S.sem===i+1}">${y}</button>`).join('')}</div>
+      </div></div>
+    <div class="card how"><h2><span class="stepno">2</span>Enter your grades</h2>
+      <ul class="howto">
+        <li><b>Already know your final grade?</b> Pick it in the Grade column.</li>
+        <li><b>Still in the middle of the sem?</b> Tap <b>Compute</b> to work it out from your Prelim, Midterm and Finals scores.</li>
+        <li>Your semestral GWA and Dean's List standing update right away.</li>
+      </ul></div>
+   </div>
+   <section class="sem mine-table">
+    <header><h3>${YEARS[S.year-1]} · ${SEMS[S.sem-1]}</h3><span id="mStatus"></span></header>
+    <div class="ctable"><div class="crow m head"><span>Code</span><span>Subjects</span><span>Units</span><span>Grade</span><span></span></div>${rows}</div>
+    <div class="semfoot big"><span>Semestral GWA <b class="mono" id="mGwa">—</b></span><span class="muted" id="mUnits"></span></div>
+   </section>
+   <div class="msg" id="mineMsg"></div>
+   <p class="note">Need your cumulative GWA or Latin honors standing? Open <button class="linkbtn" data-act="tab" data-t="gwa">All Semesters</button>.</p>`;
+  updateMine();
+}
+function updateMine(){
+  const el=document.getElementById('mGwa');if(!el)return;
+  const c=gwaCalc(rowsOf(CUR[semIdx()]));
+  el.textContent=c.gwa==null?'—':c.gwa.toFixed(3);
+  document.getElementById('mUnits').textContent=c.units?`${c.units} units counted${c.missing?` · ${c.missing} not graded yet`:''}`:'Pick a grade or tap Compute to start';
+  document.getElementById('mStatus').innerHTML=semStatus(c);
+}
 /* ---------- reference panel ---------- */
 function renderRef(){
   document.getElementById('panel-ref').innerHTML=`<div class="ref">
@@ -519,8 +591,8 @@ grade      = equivalent of the transmuted value</div>
 }
 
 /* ---------- wiring ---------- */
-const TITLES={course:'Course Grade Calculator',gwa:'GWA Calculator',ref:'Grading Rules'};
-function setTab(t){S.tab=t;['course','gwa','ref'].forEach(x=>{document.getElementById('panel-'+x).hidden=x!==t;const b=document.getElementById('tab-'+x);b.setAttribute('aria-selected',x===t);b.classList.toggle('pill',x===t&&x!=='course')});
+const TITLES={mine:'My Subjects',course:'Course Grade Calculator',gwa:'All Semesters · GWA',ref:'Grading Rules'};
+function setTab(t){S.tab=t;['mine','course','gwa','ref'].forEach(x=>{document.getElementById('panel-'+x).hidden=x!==t;const b=document.getElementById('tab-'+x);b.setAttribute('aria-selected',x===t);b.classList.toggle('pill',x===t&&x!=='course')});
   const n=document.getElementById('subnav');if(n)n.hidden=t!=='course';
   const sm=window.matchMedia&&window.matchMedia('(max-width:860px)').matches;if(sm)document.getElementById('tab-course').classList.toggle('pill',t==='course');
   document.getElementById('pageTitle').textContent=TITLES[t];renderSubnav();save()}
@@ -541,14 +613,26 @@ function onField(e){
   if(g==='nstp')S.gwa.nstp=el.checked;
   else if(g.startsWith('g.')){const c=g.slice(2);if(el.value)S.gwa.grades[c]=el.value;else delete S.gwa.grades[c]}
   else if(g.startsWith('e.'))S.gwa.elect[g.slice(2)]=el.value;
-  save();updateGWA();
+  save();updateGWA();updateMine();
+  const inMine=!!el.closest('#panel-mine');if(e.type==='change'){if(inMine)renderGWA();else renderMine()}
 }
 root.addEventListener('input',onField);
 root.addEventListener('change',onField);
 let delArm=0,clrArm=0;
 root.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;const s=sub();
-  if(a==='tab'){setTab(b.dataset.t);return}
+  if(a==='tab'){setTab(b.dataset.t);window.scrollTo(0,0);return}
+  if(a==='year'){S.year=+b.dataset.v;save();renderMine();return}
+  if(a==='sem'){S.sem=+b.dataset.v;save();renderMine();return}
+  if(a==='compute'){
+    let code=b.dataset.code,name=b.dataset.name;
+    if(/^ELECTIVE/.test(code)){const ch=S.gwa.elect[code];const msg=document.getElementById('mineMsg');
+      if(!ch){if(msg)msg.textContent='Choose which IT elective you are taking first.';return}
+      const e=ELECT.find(x=>x[0]===ch);code=ch;name=e?e[1]:name}
+    let x=S.subjects.find(q=>(q.code||'').toUpperCase()===code);
+    if(!x){x=blankSubject();x.code=code;x.name=name;S.subjects.push(x)}
+    S.cur=x.id;save();renderCourse();setTab('course');window.scrollTo(0,0);return}
+  if(a==='use'){S.gwa.grades[b.dataset.code]=b.dataset.g;save();renderMine();renderGWA();return}
   if(a==='pick-sub'){S.cur=b.dataset.id;if(S.tab!=='course')setTab('course');save();renderCourse();return}
   if(a==='mode'){s.periods[+b.dataset.i].mode=b.dataset.m;save();renderCourse();return}
   if(a==='add-item'){const p=s.periods[+b.dataset.i];p.items.push({n:'',s:'',m:''});save();renderCourse();const j=p.items.length-1;const el=document.getElementById('i'+b.dataset.i+'n'+j);if(el)el.focus();return}
@@ -568,9 +652,9 @@ root.addEventListener('click',e=>{
     if(!slot)Object.keys(S.gwa.elect).forEach(k=>{if(S.gwa.elect[k]===code)slot=k});
     if(!slot&&ELECT.some(e=>e[0]===code)){const free=['ELECTIVE1','ELECTIVE2','ELECTIVE3','ELECTIVE4'].find(k=>!S.gwa.elect[k]);if(free){S.gwa.elect[free]=code;slot=free}}
     if(!slot){m.textContent=code?`${code} isn't in the BSIT Web Dev curriculum. Check the course code.`:'Enter the course code first.';return}
-    S.gwa.grades[slot]=g.toFixed(2);save();renderGWA();m.textContent=`Saved ${g.toFixed(2)} for ${code} in the GWA tab.`;return}
+    S.gwa.grades[slot]=g.toFixed(2);save();renderGWA();renderMine();m.textContent=`Saved ${g.toFixed(2)} as your ${code} grade in My Subjects.`;return}
 });
-renderCourse();renderGWA();renderRef();setTab(S.tab||'course');
+renderMine();renderCourse();renderGWA();renderRef();setTab(S.tab||'mine');
 })();
 </script>
 </body>
