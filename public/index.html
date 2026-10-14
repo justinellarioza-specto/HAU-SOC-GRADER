@@ -35,10 +35,10 @@ button,input,select{font-family:var(--f)}
 .side{position:sticky;top:0;align-self:start;height:calc(100vh - 40px);display:flex;flex-direction:column;gap:22px;
   background:linear-gradient(180deg,var(--side1) 0%,var(--side2) 100%);color:var(--side-ink);
   border-radius:0 0 22px 0;padding:30px 0 24px max(18px,env(safe-area-inset-left,0px));box-shadow:6px 0 24px rgba(60,10,10,.25)}
-.brand{display:flex;flex-direction:column;align-items:center;gap:12px;padding-right:18px}
+.brand{display:flex;flex-direction:column;align-items:stretch;gap:12px;padding-right:18px;padding-top:6px}
 .seal{width:92px;height:92px;border-radius:50%;background:#fff;border:3px solid var(--gold);display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.25)}
 .seal svg{width:62px;height:62px}
-.brand-name{font-weight:600;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;opacity:.9;width:100%;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,.35);text-align:left}
+.brand-name{font-weight:700;font-size:15px;letter-spacing:.06em;text-transform:uppercase;opacity:.9;width:100%;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,.35);text-align:left}
 .nav{display:flex;flex-direction:column;gap:12px;flex:1;overflow-y:auto;padding-bottom:6px}
 .nav-item{display:block;width:calc(100% - 18px);text-align:left;font-weight:600;font-size:13px;color:var(--side-ink);
   background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02));border:0;border-radius:12px;padding:13px 16px;cursor:pointer;
@@ -249,7 +249,7 @@ input:focus,select:focus{background:#fff}
 .auth-card{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--glass-edge);border-radius:22px;box-shadow:var(--shadow);padding:30px 28px;
   -webkit-backdrop-filter:blur(22px) saturate(160%);backdrop-filter:blur(22px) saturate(160%);display:flex;flex-direction:column;align-items:center;gap:10px}
 .auth-card .seal{width:78px;height:78px}.auth-card .seal svg{width:52px;height:52px}
-.auth-title{font-weight:800;font-size:24px;color:var(--accent);text-transform:uppercase;margin:6px 0 0}
+.auth-title{font-weight:800;font-size:24px;color:var(--accent);text-transform:uppercase;margin:0}
 .auth-sub{margin:0 0 6px;text-align:center;color:var(--muted);font-size:13px}
 .auth-tabs{display:flex;width:100%;background:rgba(176,30,34,.07);border-radius:14px;padding:4px;gap:4px}
 .auth-tabs button{flex:1;border:0;background:transparent;font:600 13px var(--f);color:var(--muted);padding:10px;border-radius:11px;cursor:pointer}
@@ -273,7 +273,6 @@ input:focus,select:focus{background:#fff}
 <body>
 <div class="auth" id="auth" hidden>
   <div class="auth-card">
-    <div class="seal" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M32 6 52 13v17c0 13-8.5 22.5-20 28C20.5 52.5 12 43 12 30V13z" fill="#a11d1f"/><path d="M32 12 46 17v13c0 9.6-6 17-14 21.6C24 47 18 39.6 18 30V17z" fill="#fff"/><text x="32" y="36.5" text-anchor="middle" font-family="Poppins,Segoe UI,sans-serif" font-weight="800" font-size="12" fill="#a11d1f">SOC</text></svg></div>
     <h1 class="auth-title">HAU SOC Grader</h1>
     <p class="auth-sub">Track your course grades and GWA. Your data is saved to your account.</p>
     <div class="auth-tabs" role="tablist">
@@ -295,7 +294,6 @@ input:focus,select:focus{background:#fff}
 <div class="app" id="app" hidden>
   <aside class="side">
     <div class="brand">
-      <div class="seal" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M32 6 52 13v17c0 13-8.5 22.5-20 28C20.5 52.5 12 43 12 30V13z" fill="#a11d1f"/><path d="M32 12 46 17v13c0 9.6-6 17-14 21.6C24 47 18 39.6 18 30V17z" fill="#fff"/><text x="32" y="36.5" text-anchor="middle" font-family="Poppins,Segoe UI,sans-serif" font-weight="800" font-size="12" fill="#a11d1f">SOC</text></svg></div>
       <div class="brand-name">HAU SOC Grader</div>
     </div>
     <nav class="nav" role="tablist" aria-label="Sections">
