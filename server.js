@@ -15,20 +15,35 @@ const PROD = process.env.NODE_ENV === 'production';
 const COOKIE = 'hsg_session';
 const SESSION_DAYS = 30;
 
-if (!MONGODB_URI) { console.error('Missing MONGODB_URI environment variable.'); process.exit(1); }
-if (!JWT_SECRET || JWT_SECRET.length < 16) { console.error('Missing JWT_SECRET (at least 16 characters).'); process.exit(1); }
+let dbProblem = null;
+if (!MONGODB_URI) dbProblem = 'MONGODB_URI is not set in the server environment.';
+if (!JWT_SECRET || JWT_SECRET.length < 16) dbProblem = (dbProblem ? dbProblem + ' ' : '') + 'JWT_SECRET is missing or shorter than 16 characters.';
+if (dbProblem) console.error('Config problem:', dbProblem);
 
 const STUDENT_NO = /^[A-Za-z0-9-]{4,20}$/;
 
 function clean(v) { return typeof v === 'string' ? v.trim() : ''; }
 function publicUser(u) { return { name: u.name, studentNumber: u.studentNumber }; }
 
-async function main() {
-  const client = new MongoClient(MONGODB_URI);
-  await client.connect();
-  const users = client.db(DB_NAME).collection('users');
-  await users.createIndex({ studentNumberKey: 1 }, { unique: true });
+let users = null;
+let connectError = null;
+async function connectDb() {
+  if (!MONGODB_URI) return;
+  try {
+    const client = new MongoClient(MONGODB_URI, { serverSelectionTimeoutMS: 10000 });
+    await client.connect();
+    const col = client.db(DB_NAME).collection('users');
+    await col.createIndex({ studentNumberKey: 1 }, { unique: true });
+    users = col; connectError = null;
+    console.log('Connected to MongoDB.');
+  } catch (e) {
+    connectError = e.message;
+    console.error('MongoDB connection failed:', e.message, '- retrying in 15s');
+    setTimeout(connectDb, 15000);
+  }
+}
 
+function main() {
   const app = express();
   app.set('trust proxy', 1);
   app.disable('x-powered-by');
@@ -39,6 +54,13 @@ async function main() {
     res.set('X-Frame-Options', 'SAMEORIGIN');
     res.set('Referrer-Policy', 'same-origin');
     next();
+  });
+
+  app.get('/healthz', (req, res) => res.json({ ok: true, database: users ? 'connected' : 'not connected' }));
+  app.use('/api', (req, res, next) => {
+    if (users && !dbProblem) return next();
+    const why = dbProblem || (connectError ? 'Cannot reach the database: ' + connectError : 'Connecting to the database. Try again in a few seconds.');
+    res.status(503).json({ error: why });
   });
 
   const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: 'draft-7', legacyHeaders: false,
@@ -122,6 +144,7 @@ async function main() {
   });
 
   app.listen(PORT, () => console.log(`HAU SOC Grader running on port ${PORT}`));
+  connectDb();
 }
 
-main().catch(err => { console.error('Failed to start:', err.message); process.exit(1); });
+main();
