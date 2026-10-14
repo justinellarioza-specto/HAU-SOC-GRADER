@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: hau-soc-grader
+    runtime: static
+    branch: main
+    buildCommand: echo "No build needed"
+    staticPublishPath: .
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
