@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HAU Grade &amp; GWA Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+/* Layout: maroon registrar band on top, then a working sheet — period cards on the left, live result rail on the right; stacks on phones */
+:root{
+  --bg:#f5f2f2; --surface:#ffffff; --sunk:#f0ebeb; --ink:#1f1718; --muted:#6c6163; --line:#e3dadb;
+  --accent:#7d1f2c; --accent-soft:#f6e6e8; --band:#6a1823; --band-ink:#fbeff0; --gold:#a8791f;
+  --good:#2c7a4b; --good-soft:#e4f3ea; --warn:#9a5b00; --warn-soft:#fbefd9; --bad:#b0281f; --bad-soft:#fbe5e3;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Public Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141011; --surface:#1d1819; --sunk:#171314; --ink:#f2eaeb; --muted:#a99c9e; --line:#352d2e;
+  --accent:#e0798a; --accent-soft:#3a1f24; --band:#3b111a; --band-ink:#fbe9ec; --gold:#d8ad57;
+  --good:#6cc493; --good-soft:#173324; --warn:#e2a54a; --warn-soft:#3a2a12; --bad:#f08a80; --bad-soft:#3d1a17; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141011; --surface:#1d1819; --sunk:#171314; --ink:#f2eaeb; --muted:#a99c9e; --line:#352d2e;
+  --accent:#e0798a; --accent-soft:#3a1f24; --band:#3b111a; --band-ink:#fbe9ec; --gold:#d8ad57;
+  --good:#6cc493; --good-soft:#173324; --warn:#e2a54a; --warn-soft:#3a2a12; --bad:#f08a80; --bad-soft:#3d1a17; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.band{background:var(--band);color:var(--band-ink)}
+.band .wrap{padding-block:22px 0;display:flex;flex-direction:column;gap:14px}
+.eyebrow{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;opacity:.75}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(26px,4.5vw,38px);line-height:1.05;margin:0;text-wrap:balance}
+h2{font-family:var(--f-display);font-weight:700;font-size:20px;margin:0}
+h3{font-family:var(--f-display);font-weight:700;font-size:17px;margin:0}
+.tabs{display:flex;gap:4px;flex-wrap:wrap}
+.tabs button{font:600 14px var(--f-body);color:var(--band-ink);background:transparent;border:0;padding:10px 14px;border-radius:8px 8px 0 0;cursor:pointer;opacity:.75}
+.tabs button[aria-selected="true"]{background:var(--bg);color:var(--ink);opacity:1}
+.tabs button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+main .wrap{padding-block:22px 48px}
+.panel[hidden]{display:none!important}
+
+/* controls */
+input,select{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:7px 9px;min-width:0;width:100%}
+input[type=number]{font-family:var(--f-mono);font-size:14px;text-align:right;-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+.btn{font:600 13.5px var(--f-body);border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 12px;border-radius:7px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--bad)}
+.btn.danger{color:var(--bad)}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--muted);font-weight:600;min-width:0}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+
+/* course layout */
+.course{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:22px;align-items:start}
+@media (max-width:900px){.course{grid-template-columns:minmax(0,1fr)}}
+.subjectbar{display:grid;grid-template-columns:1.2fr 110px 2fr;gap:10px;align-items:end;margin-bottom:12px}
+.settings{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:18px}
+@media (max-width:600px){.subjectbar{grid-template-columns:1fr 1fr}.subjectbar .wide{grid-column:1/-1}.settings{grid-template-columns:1fr 1fr}}
+.subjrow{display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin-bottom:16px}
+.subjrow label{flex:1 1 220px}
+.periods{display:flex;flex-direction:column;gap:16px}
+.period{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.period>header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{font:600 12.5px var(--f-body);background:transparent;color:var(--muted);border:0;padding:6px 11px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+.pbody{padding:14px 16px;display:flex;flex-direction:column;gap:14px}
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.unit{display:flex;align-items:center;gap:6px}
+.unit span{font-family:var(--f-mono);font-size:13px;color:var(--muted);white-space:nowrap}
+.sublabel{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.items{display:flex;flex-direction:column;gap:6px}
+.irow{display:grid;grid-template-columns:minmax(0,1fr) 78px 78px 30px;gap:6px;align-items:center}
+.irow.head{font-size:11.5px;color:var(--muted);font-weight:600}
+.irow.head span:nth-child(2),.irow.head span:nth-child(3){text-align:right;padding-right:8px}
+.exam{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.exam .pair{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center}
+.exam .pair span{color:var(--muted)}
+.exam .method{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) 140px;gap:10px}
+@media (max-width:520px){.exam{grid-template-columns:1fr}.exam .method{grid-template-columns:1fr}}
+.pres{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;padding:12px 16px;background:var(--sunk);border-top:1px solid var(--line);font-size:13px}
+.pres b{font-family:var(--f-mono);font-weight:600;color:var(--ink)}
+.pres .chip{margin-left:auto}
+.chip{display:inline-flex;align-items:center;gap:6px;font:600 12.5px var(--f-mono);padding:4px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.chip.good{background:var(--good-soft);color:var(--good)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.none{background:var(--sunk);color:var(--muted)}
+
+/* rail */
+.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);display:flex;flex-direction:column;gap:16px}
+@media (max-width:900px){.rail{position:static}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.terms{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.term{border:1px solid var(--line);border-radius:8px;padding:10px;text-align:center}
+.term .lbl{font-size:11.5px;color:var(--muted);font-weight:600}
+.term .g{font-family:var(--f-display);font-weight:800;font-size:28px;line-height:1.1}
+.term .t{font-family:var(--f-mono);font-size:11.5px;color:var(--muted)}
+.term.final{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.term.final .lbl,.term.final .t{color:var(--surface);opacity:.85}
+.ladder{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+.ladder th{text-align:left;font-size:11.5px;color:var(--muted);font-weight:600;padding:4px 6px;border-bottom:1px solid var(--line)}
+.ladder td{padding:5px 6px;border-bottom:1px solid var(--line)}
+.ladder td:last-child,.ladder th:last-child{text-align:right}
+.ladder tr.cur td{background:var(--accent-soft);font-weight:600}
+.note{font-size:12.5px;color:var(--muted);margin:8px 0 0}
+.msg{font-size:12.5px;margin-top:8px;min-height:1em}
+
+/* gwa */
+.gwahead{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+@media (max-width:700px){.gwahead{grid-template-columns:1fr 1fr}}
+.stat .v{font-family:var(--f-display);font-weight:800;font-size:30px;line-height:1.1}
+.stat .k{font-size:12px;color:var(--muted);font-weight:600}
+.opts{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:16px;font-size:13.5px}
+.opts label{display:flex;gap:8px;align-items:center}
+.opts input{width:auto}
+.sems{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:860px){.sems{grid-template-columns:minmax(0,1fr)}}
+.sem{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column}
+.sem>header{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.crow{display:grid;grid-template-columns:minmax(0,1fr) 34px 96px;gap:8px;align-items:center;padding:7px 14px;border-bottom:1px solid var(--line)}
+.crow:last-child{border-bottom:0}
+.crow .code{font:600 12px var(--f-mono);color:var(--accent)}
+.crow .title{font-size:13.5px;line-height:1.3}
+.crow .u{font-family:var(--f-mono);font-size:13px;color:var(--muted);text-align:center}
+.crow select{padding:5px 6px;font-family:var(--f-mono);font-size:13px}
+.crow select.elec{margin-top:4px;font-family:var(--f-body);font-size:12.5px}
+.semfoot{margin-top:auto;display:flex;justify-content:space-between;gap:8px;padding:10px 14px;background:var(--sunk);border-top:1px solid var(--line);font-size:13px;flex-wrap:wrap}
+
+/* reference */
+.ref{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:820px){.ref{grid-template-columns:minmax(0,1fr)}}
+.tbl{overflow-x:auto}
+table.eq{width:100%;border-collapse:collapse;font-size:13.5px}
+table.eq th{text-align:left;font-size:11.5px;color:var(--muted);font-weight:600;padding:6px 8px;border-bottom:1px solid var(--line)}
+table.eq td{padding:6px 8px;border-bottom:1px solid var(--line)}
+.ref p,.ref li{font-size:14px;max-width:65ch}
+.ref ul{padding-left:18px;margin:8px 0}
+.formula{font-family:var(--f-mono);font-size:13px;background:var(--sunk);border:1px solid var(--line);border-radius:7px;padding:10px 12px;overflow-x:auto;white-space:pre}
+@media (prefers-reduced-motion:no-preference){.term .g,.stat .v{transition:color .2s}}
+</style>
+</head>
+<body>
+<div class="band">
+  <div class="wrap">
+    <div class="eyebrow">Holy Angel University · School of Computing · BSIT Web Dev (2022 curriculum)</div>
+    <h1>Grade &amp; GWA Calculator</h1>
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tab-course" data-act="tab" data-t="course">Course grade</button>
+      <button role="tab" id="tab-gwa" data-act="tab" data-t="gwa">GWA</button>
+      <button role="tab" id="tab-ref" data-act="tab" data-t="ref">Grading rules</button>
+    </div>
+  </div>
+</div>
+
+<main><div class="wrap" id="root">
+  <section class="panel" id="panel-course"></section>
+  <section class="panel" id="panel-gwa"></section>
+  <section class="panel" id="panel-ref"></section>
+</div></main>
+
+<script>
+(function(){
+/* ---------- data from the handbook & curriculum ---------- */
+const SCALE=[[97,1.00,'A','Outstanding'],[94,1.25,'A-','Excellent'],[91,1.50,'B+','Superior'],[88,1.75,'B','Very Good'],[85,2.00,'B-','Good'],[82,2.25,'C+','Satisfactory'],[79,2.50,'C','Fairly Satisfactory'],[76,2.75,'C-','Fair'],[75,3.00,'D','Passed']];
+const CUR=[
+ {sem:'1st Year · 1st Sem',c:[['2MATHMWORLD','Mathematics in the Modern World',3],['4FYE1','Big History 1: Big Bang to the Future',3],['6CFUN','Computing Fundamentals',3],['6LOGPROG','Logic Formulation and Introductory Programming',3],['7TPE1','PATHFit 1: Movement Competency Training',2],['9STS','Science, Technology and Society',3],['THEOLOGY101','Theological Foundations',3],['CWTS1','Civic Welfare Training Services 1',3,1]]},
+ {sem:'1st Year · 2nd Sem',c:[['1PURCOMM','Purposive Communication',3],['2ANAGEOM','Analytic Geometry',3],['4FYE2','Big History 2',3],['6DMATHS','Discrete Mathematics and Structures',3],['6PHCI','Principles of Human Computer Interaction',3],['6PROGSDATS','Programming with Structured Data Types',3],['7TPE2','PATHFit 2: Exercise-based Fitness',2],['THEOLOGY102','Special Issues in Catholic Theology',3],['CWTS2','Civic Welfare Training Services 2',3,1]]},
+ {sem:'2nd Year · 1st Sem',c:[['2CALC-IT','Calculus',3],['4ETHICS','Ethics',3],['6COMETHICS','Ethics for Computing Professionals',3],['6DSAL','Data Structures and Algorithms',3],['6INTROWEB','Introduction to Web Programming',3],['6OOP','Object-Oriented Programming',3],['6OSAPP','Operating Systems Application',3],['7TPE3','PATHFit 3',2]]},
+ {sem:'2nd Year · 2nd Sem',c:[['2PROBSTAT','Probability and Statistics',3],['4READPHILHIS','Readings in Philippine History',3],['6DWEB','Dynamic Web Applications and Development Tools',3],['6IMAN','Information Management',3],['6ITN','Introduction to Networks',3],['7TPE4','PATHFit 4',2],['9CALBPHYS','Calculus-based Physics',3],['9CALBPHYSL','Calculus-based Physics Laboratory',1],['THEOLOGY103','Christian Spirituality in the Contemporary World',3]]},
+ {sem:'3rd Year · 1st Sem',c:[['2LINALGEB','Linear Algebra',3],['6ADDBASE','Advanced Database Systems',3],['6IASEC','Information Assurance and Security',3],['6SSAD','Systems Analysis and Design',3],['6WCSERVER','Web Server and Client Services',3],['6WEBPUB','Web and Advertising Publishing Concepts',3],['ELECTIVE1','IT Elective 1',3]]},
+ {sem:'3rd Year · 2nd Sem',c:[['1TWRITE-ITE','Technical Writing of IT Education',3],['4UNDERSELF','Understanding the Self',3],['6ADET','Applications Development and Emerging Technologies',3],['6AWEB','Advanced Dynamic Web Applications',3],['6CLOUDCOM','Cloud Computing',3],['6WSEA','Web Search Engine Optimization and Analytics',3],['ELECTIVE2','IT Elective 2',3]]},
+ {sem:'4th Year · 1st Sem',c:[['6WCAP1','Web Development Capstone 1',3],['6OJT','On-the-Job Training (486 hours)',6]]},
+ {sem:'4th Year · 2nd Sem',c:[['4ARTAPP','Art Appreciation',3],['4CONWORLD','The Contemporary World',3],['4RIZAL','Life and Works of Rizal',3],['6WCAP2','Web Development Capstone 2',3],['ELECTIVE3','IT Elective 3',3],['ELECTIVE4','IT Elective 4',3]]}
+];
+const ELECT=[['6SRWE','Switching, Routing, and Wireless Essentials'],['6ENSA','Enterprise Networking, Security, and Automation'],['6DEVOPS','Development and Operation'],['6BLOCKTECH','Blockchain Technology'],['6ITPROGMAN','Project Management'],['6SHWINT','Software and Hardware Interfacing'],['6WDFOL','Web Development Portfolio'],['6NSEC','Network Security Implementation'],['6IMSOFTENG','Implementation and Management of Software Engineering'],['6UHCID','Usability, HCI and User Interaction Design'],['6ADSE','Audio Design and Sound Engineering']];
+const GOPTS=[['',' — '],['1.00','1.00'],['1.25','1.25'],['1.50','1.50'],['1.75','1.75'],['2.00','2.00'],['2.25','2.25'],['2.50','2.50'],['2.75','2.75'],['3.00','3.00'],['5.00','5.00 F'],['6.00','6.0 FA'],['8.00','8.0 UW'],['9.00','9.0 DRP'],['INC','INC']];
+const PNAMES=['Prelim','Midterm','Finals'];
+
+/* ---------- state ---------- */
+const KEY='hau-grade-calc-v1';
+function blankPeriod(mode){return {mode:mode||'itemized',cs:'',ex:'',items:[{n:'',s:'',m:''}],lec:{s:'',m:''},lab:{s:'',m:''},method:'raw',lecW:'50'}}
+function sampleSubject(){
+  const p0=blankPeriod('quick');p0.cs='61';p0.ex='20';
+  const p1=blankPeriod('quick');p1.cs='55';p1.ex='20';
+  const p2=blankPeriod('itemized');
+  p2.items=[['HA#4 Risk Management',45,50],['HA#5 Attack Analysis',48,50],['Quiz#3 Cyber Kill Chain',15,15],['Quiz#2 Vulnerability Assessment',95,100],['LA Evaluate Security Reports',40,50],['LA#2 Threat Intelligence',45,50],['Module 4 Lab Act#3',90,100],['Packet Tracer Final#1 (assumed)',95,100]].map(a=>({n:a[0],s:String(a[1]),m:String(a[2])}));
+  p2.lec={s:'21',m:'50'};p2.lab={s:'24',m:'30'};
+  return {id:'s'+Date.now(),code:'6IASEC',name:'Information Assurance and Security',csW:'65',exW:'35',pass:'50',round:'trunc',periods:[p0,p1,p2]};
+}
+function blankSubject(){return {id:'s'+Date.now()+Math.floor(Math.random()*1e4),code:'',name:'New subject',csW:'65',exW:'35',pass:'50',round:'trunc',periods:[blankPeriod(),blankPeriod(),blankPeriod()]}}
+let S=null;
+try{S=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){S=null}
+if(!S||!S.subjects||!S.subjects.length){const sub=sampleSubject();S={tab:'course',subjects:[sub],cur:sub.id,gwa:{grades:{},elect:{},nstp:false}}}
+S.gwa=S.gwa||{grades:{},elect:{},nstp:false};S.gwa.grades=S.gwa.grades||{};S.gwa.elect=S.gwa.elect||{};
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function sub(){return S.subjects.find(x=>x.id===S.cur)||S.subjects[0]}
+
+/* ---------- math ---------- */
+function num(v){if(v===''||v==null)return null;const n=parseFloat(v);return isFinite(n)?n:null}
+function f2(n){return n==null?'—':(Math.round(n*100)/100).toFixed(2)}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function eqGrade(t){for(const r of SCALE)if(t>=r[0])return r[1];return 5}
+function transmute(c,P){return 75+(c-P)*25/(100-P)}
+function settle(t,mode){return mode==='round'?Math.round(t):Math.floor(t+1e-9)}
+function gradeText(g){return g==null?'—':g.toFixed(2)}
+function examPct(p){
+  const ls=num(p.lec.s),lm=num(p.lec.m),bs=num(p.lab.s),bm=num(p.lab.m);
+  const L=ls!=null&&lm>0,B=bs!=null&&bm>0;
+  if(L&&B){if(p.method==='raw')return (ls+bs)/(lm+bm);if(p.method==='avg')return (ls/lm+bs/bm)/2;const w=Math.min(100,Math.max(0,num(p.lecW)??50))/100;return ls/lm*w+bs/bm*(1-w)}
+  if(L)return ls/lm;if(B)return bs/bm;return null;
+}
+function period(s,p){
+  const cw=num(s.csW)??65,ew=num(s.exW)??35,W=cw+ew;let cs=null,ex=null,csRaw=null;
+  if(p.mode==='quick'){cs=num(p.cs);ex=num(p.ex)}
+  else{let a=0,b=0;for(const it of p.items){const x=num(it.s),y=num(it.m);if(x!=null&&y>0){a+=x;b+=y}}
+    if(b>0){cs=a/b*cw;csRaw=[a,b]}const e=examPct(p);if(e!=null)ex=e*ew}
+  const term=(cs!=null&&ex!=null&&W>0)?(cs+ex)/W*100:null;
+  return {cs,ex,term,cw,ew,W,csRaw};
+}
+function compute(s){
+  const P=num(s.pass)??50;const per=s.periods.map(p=>period(s,p));const out=[];let sum=0,ok=true;
+  per.forEach((r,i)=>{if(r.term==null)ok=false;else sum+=r.term;
+    const cum=ok?sum/(i+1):null;const t=cum!=null?transmute(cum,P):null;
+    out.push(Object.assign({},r,{cum,tr:t,grade:t!=null?eqGrade(settle(t,s.round)):null}))});
+  return out;
+}
+
+/* ---------- course panel ---------- */
+function periodHTML(s,p,i){
+  const cw=esc(s.csW),ew=esc(s.exW);
+  let body='';
+  if(p.mode==='quick'){
+    body=`<div class="quick">
+      <label class="f" for="q${i}cs">Class standing (points as shown in ERP)<div class="unit"><input type="number" inputmode="decimal" step="any" id="q${i}cs" data-k="p.${i}.cs" value="${esc(p.cs)}"><span>/ ${cw}</span></div></label>
+      <label class="f" for="q${i}ex">Major exam (points as shown in ERP)<div class="unit"><input type="number" inputmode="decimal" step="any" id="q${i}ex" data-k="p.${i}.ex" value="${esc(p.ex)}"><span>/ ${ew}</span></div></label>
+    </div>`;
+  }else{
+    const rows=p.items.map((it,j)=>`<div class="irow">
+      <input id="i${i}n${j}" data-k="p.${i}.items.${j}.n" value="${esc(it.n)}" placeholder="Quiz, lab, activity…" aria-label="Item name">
+      <input id="i${i}s${j}" type="number" inputmode="decimal" step="any" data-k="p.${i}.items.${j}.s" value="${esc(it.s)}" aria-label="Score">
+      <input id="i${i}m${j}" type="number" inputmode="decimal" step="any" data-k="p.${i}.items.${j}.m" value="${esc(it.m)}" aria-label="Max">
+      <button class="btn ghost" data-act="del-item" data-i="${i}" data-j="${j}" aria-label="Remove item">×</button></div>`).join('');
+    body=`<div class="items"><div class="sublabel">Class standing · ${cw}%</div>
+      <div class="irow head"><span>Item</span><span>Score</span><span>Max</span><span></span></div>${rows}
+      <div><button class="btn" data-act="add-item" data-i="${i}">+ Add item</button> <span class="small muted" id="o${i}raw"></span></div></div>
+      <div class="exam"><div class="sublabel" style="grid-column:1/-1">Major exam · ${ew}%</div>
+        <label class="f">Lecture<div class="pair"><input type="number" inputmode="decimal" step="any" id="e${i}ls" data-k="p.${i}.lec.s" value="${esc(p.lec.s)}" aria-label="Lecture score"><span>/</span><input type="number" inputmode="decimal" step="any" id="e${i}lm" data-k="p.${i}.lec.m" value="${esc(p.lec.m)}" aria-label="Lecture max"></div></label>
+        <label class="f">Laboratory<div class="pair"><input type="number" inputmode="decimal" step="any" id="e${i}bs" data-k="p.${i}.lab.s" value="${esc(p.lab.s)}" aria-label="Lab score"><span>/</span><input type="number" inputmode="decimal" step="any" id="e${i}bm" data-k="p.${i}.lab.m" value="${esc(p.lab.m)}" aria-label="Lab max"></div></label>
+        <div class="method">
+          <label class="f" for="e${i}meth">How lec and lab are merged
+            <select id="e${i}meth" data-k="p.${i}.method">
+              <option value="raw"${p.method==='raw'?' selected':''}>Add raw scores (lec + lab) ÷ (total items)</option>
+              <option value="avg"${p.method==='avg'?' selected':''}>Average the two percentages (50/50)</option>
+              <option value="w"${p.method==='w'?' selected':''}>Weighted by lecture share</option>
+            </select></label>
+          <label class="f" for="e${i}w" id="e${i}wl">Lecture share %<input type="number" inputmode="decimal" step="any" id="e${i}w" data-k="p.${i}.lecW" value="${esc(p.lecW)}"></label>
+        </div>
+      </div>`;
+  }
+  return `<article class="period">
+    <header><h3>${PNAMES[i]}</h3>
+      <div class="seg" role="group" aria-label="${PNAMES[i]} input mode">
+        <button data-act="mode" data-i="${i}" data-m="quick" aria-pressed="${p.mode==='quick'}">ERP points</button>
+        <button data-act="mode" data-i="${i}" data-m="itemized" aria-pressed="${p.mode==='itemized'}">Itemized scores</button>
+      </div></header>
+    <div class="pbody">${body}</div>
+    <div class="pres" id="o${i}"></div>
+  </article>`;
+}
+function renderCourse(){
+  const s=sub();
+  const opts=S.subjects.map(x=>`<option value="${x.id}"${x.id===s.id?' selected':''}>${esc((x.code?x.code+' · ':'')+x.name)}</option>`).join('');
+  document.getElementById('panel-course').innerHTML=`<div class="course">
+   <div>
+    <div class="subjrow">
+      <label class="f" for="subSel">Subject<select id="subSel">${opts}</select></label>
+      <button class="btn" data-act="add-sub">+ New subject</button>
+      <button class="btn danger" data-act="del-sub" id="delSub"${S.subjects.length<2?' disabled':''}>Delete</button>
+    </div>
+    <div class="subjectbar">
+      <label class="f" for="sCode">Course code<input id="sCode" data-k="sub.code" value="${esc(s.code)}" placeholder="6IASEC"></label>
+      <label class="f" for="sPass">Passing %<input id="sPass" type="number" step="any" data-k="sub.pass" value="${esc(s.pass)}"></label>
+      <label class="f wide" for="sName">Title<input id="sName" data-k="sub.name" value="${esc(s.name)}"></label>
+    </div>
+    <div class="settings">
+      <label class="f" for="sCsW">Class standing %<input id="sCsW" type="number" step="any" data-k="sub.csW" value="${esc(s.csW)}"></label>
+      <label class="f" for="sExW">Major exam %<input id="sExW" type="number" step="any" data-k="sub.exW" value="${esc(s.exW)}"></label>
+      <label class="f" for="sRound" style="grid-column:span 2">Transmuted decimals
+        <select id="sRound" data-k="sub.round"><option value="trunc"${s.round!=='round'?' selected':''}>Drop decimals (matches the ERP)</option><option value="round"${s.round==='round'?' selected':''}>Round to nearest</option></select></label>
+    </div>
+    <div class="periods">${s.periods.map((p,i)=>periodHTML(s,p,i)).join('')}</div>
+   </div>
+   <aside class="rail">
+    <div class="card"><h2 id="sumTitle"></h2>
+      <div class="terms" id="terms"></div>
+      <p class="note">Each term grade uses the cumulative average up to that term, the same way the ERP computes it.</p>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap"><button class="btn primary" data-act="send">Put final grade in GWA</button></div>
+      <div class="msg" id="sendMsg"></div>
+    </div>
+    <div class="card"><h3>What you need on the Finals exam</h3>
+      <div id="ladder"></div>
+    </div>
+   </aside></div>`;
+  updateCourse();
+}
+function updateCourse(){
+  const s=sub();const R=compute(s);const P=num(s.pass)??50;
+  R.forEach((r,i)=>{
+    const el=document.getElementById('o'+i);if(!el)return;
+    const g=r.grade;const cls=g==null?'none':g<=1.75?'good':g<=2.75?'':g<=3?'warn':'bad';
+    el.innerHTML=`<span>CS <b>${f2(r.cs)}</b> / ${f2(r.cw)}</span><span>Exam <b>${f2(r.ex)}</b> / ${f2(r.ew)}</span><span>Term <b>${f2(r.term)}</b></span><span>Cumulative <b>${f2(r.cum)}</b> → <b>${r.tr==null?'—':f2(r.tr)}</b></span><span class="chip ${cls}">${gradeText(g)}</span>`;
+    const raw=document.getElementById('o'+i+'raw');if(raw)raw.textContent=r.csRaw?`Total ${f2(r.csRaw[0])} / ${f2(r.csRaw[1])} = ${f2(r.csRaw[0]/r.csRaw[1]*100)}%`:'';
+    const wl=document.getElementById('e'+i+'wl');if(wl)wl.hidden=s.periods[i].method!=='w';
+  });
+  document.getElementById('sumTitle').textContent=(s.code||'Subject')+' grades';
+  document.getElementById('terms').innerHTML=R.map((r,i)=>`<div class="term${i===2?' final':''}"><div class="lbl">${i===2?'Final grade':PNAMES[i]}</div><div class="g">${gradeText(r.grade)}</div><div class="t">${r.tr==null?'incomplete':'transmuted '+f2(r.tr)}</div></div>`).join('');
+  // ladder
+  const L=document.getElementById('ladder');const f=R[2];
+  if(R[0].term==null||R[1].term==null){L.innerHTML='<p class="note">Fill in Prelim and Midterm first.</p>';}
+  else if(f.cs==null){L.innerHTML='<p class="note">Enter your Finals class standing to see the exam score you need.</p>';}
+  else{
+    const p=s.periods[2];const lm=num(p.lec.m),bm=num(p.lab.m);const totalItems=(p.mode==='itemized'&&p.method==='raw'&&lm>0&&bm>0)?lm+bm:null;
+    const rows=SCALE.map(([min,g])=>{
+      const thr=s.round==='round'?min-0.5:min;const creq=P+(thr-75)*(100-P)/25;const t3=3*creq-R[0].term-R[1].term;const exReq=t3*f.W/100-f.cs;const pct=exReq/f.ew*100;
+      let txt;if(pct<=0)txt='<span class="chip good">secured</span>';else if(pct>100)txt='<span class="muted">out of reach</span>';else txt=`<span class="mono">${f2(pct)}%${totalItems?` · ${Math.ceil(pct/100*totalItems-1e-9)}/${totalItems}`:''}</span>`;
+      return `<tr class="${f.grade===g?'cur':''}"><td class="mono">${g.toFixed(2)}</td><td>${txt}</td></tr>`}).join('');
+    L.innerHTML=`<table class="ladder"><thead><tr><th>Final grade</th><th>Finals exam needed</th></tr></thead><tbody>${rows}</tbody></table>
+      <p class="note">Uses your current Finals class standing (${f2(f.cs)} / ${f2(f.cw)}). The highlighted row is where your current Finals exam score puts you.</p>`;
+  }
+  const o=document.querySelector('#subSel option[value="'+s.id+'"]');if(o)o.textContent=(s.code?s.code+' · ':'')+s.name;
+}
+
+/* ---------- GWA panel ---------- */
+function rowsOf(sem){return sem.c.map(([code,title,units,nstp])=>({code,title,units,nstp:!!nstp}))}
+function gwaCalc(rows){
+  let s=0,u=0,worst=0,fails=0,missing=0,earned=0,graded=0;
+  rows.forEach(r=>{const g=S.gwa.grades[r.code];if(!g||g==='INC'){missing++;return}const v=+g;graded++;
+    if(v<=3)earned+=r.units;if(v===9)return;if(v>=5)fails++;
+    if(r.nstp&&!S.gwa.nstp)return;
+    const e=v>=5?5:v;s+=e*r.units;u+=r.units;if(!r.nstp)worst=Math.max(worst,v)});
+  return {gwa:u?s/u:null,units:u,worst,fails,missing,earned,graded};
+}
+function semStatus(c,total){
+  if(c.gwa==null)return '<span class="chip none">no grades yet</span>';
+  if(c.fails)return `<span class="chip bad">${c.fails} failing</span>`;
+  const partial=c.missing>0;let h=null;
+  if(c.worst<=2&&c.gwa<=1.25)h="President's List";else if(c.worst<=2&&c.gwa<=1.75)h="Dean's List";
+  if(h)return `<span class="chip good">${partial?'on track: ':''}${h}</span>`;
+  if(c.worst>2&&c.gwa<=1.75)return '<span class="chip warn">a grade below 2.00 blocks honors</span>';
+  return '<span class="chip none">no honors</span>';
+}
+function renderGWA(){
+  const sems=CUR.map((sem,k)=>{
+    const rows=rowsOf(sem).map(r=>{
+      const isE=/^ELECTIVE/.test(r.code);const sel=S.gwa.grades[r.code]||'';
+      let title=esc(r.title);
+      if(isE){const ch=S.gwa.elect[r.code]||'';title=`${esc(r.title)}<select class="elec" id="el-${r.code}" data-g="e.${r.code}" aria-label="Choose ${esc(r.title)}"><option value="">Choose elective…</option>${ELECT.map(e=>`<option value="${e[0]}"${ch===e[0]?' selected':''}>${e[0]} · ${esc(e[1])}</option>`).join('')}</select>`}
+      return `<div class="crow"><div><div class="code">${r.code}${r.nstp?' · NSTP':''}</div><div class="title">${title}</div></div><div class="u">${r.units}</div>
+        <select id="g-${r.code}" data-g="g.${r.code}" aria-label="Grade for ${r.code}">${GOPTS.map(o=>`<option value="${o[0]}"${sel===o[0]?' selected':''}>${o[1]}</option>`).join('')}</select></div>`}).join('');
+    return `<section class="sem"><header><h3>${sem.sem}</h3><span id="ss${k}"></span></header>${rows}<div class="semfoot"><span>Semestral GWA <b class="mono" id="sg${k}">—</b></span><span class="muted" id="su${k}"></span></div></section>`}).join('');
+  document.getElementById('panel-gwa').innerHTML=`
+    <div class="gwahead">
+      <div class="card stat"><div class="k">Cumulative GWA</div><div class="v" id="gAll">—</div></div>
+      <div class="card stat"><div class="k">Units earned</div><div class="v" id="gUnits">0</div><div class="small muted">of 165 in the curriculum</div></div>
+      <div class="card stat"><div class="k">Latin honors standing</div><div class="v" id="gLatin" style="font-size:20px;padding-top:6px">—</div></div>
+      <div class="card stat"><div class="k">Courses graded</div><div class="v" id="gCount">0</div></div>
+    </div>
+    <div class="opts">
+      <label><input type="checkbox" id="optNstp" data-g="nstp"${S.gwa.nstp?' checked':''}> Count CWTS (NSTP) in the GWA</label>
+      <button class="btn" data-act="clear-gwa" id="clearGwa">Clear all grades</button>
+    </div>
+    <div class="sems">${sems}</div>
+    <p class="note">FA (6.0) and UW (8.0) count as 5.0 in the average. DRP (9.0), INC and blank courses are left out. PE (TPE) is included, as the handbook requires.</p>`;
+  updateGWA();
+}
+function updateGWA(){
+  let all=[];CUR.forEach((sem,k)=>{const rows=rowsOf(sem);all=all.concat(rows);const c=gwaCalc(rows);
+    document.getElementById('sg'+k).textContent=c.gwa==null?'—':c.gwa.toFixed(3);
+    document.getElementById('su'+k).textContent=c.units?`${c.units} units counted${c.missing?` · ${c.missing} not graded`:''}`:'';
+    document.getElementById('ss'+k).innerHTML=semStatus(c)});
+  const c=gwaCalc(all);
+  document.getElementById('gAll').textContent=c.gwa==null?'—':c.gwa.toFixed(3);
+  document.getElementById('gUnits').textContent=c.earned;
+  document.getElementById('gCount').textContent=c.graded;
+  let latin='—';
+  if(c.gwa!=null){if(c.fails)latin='Not eligible (failing mark)';else if(c.worst>2)latin='Not eligible (grade below 2.00)';else if(c.gwa<=1.25)latin='Summa Cum Laude';else if(c.gwa<=1.5)latin='Magna Cum Laude';else if(c.gwa<=1.75)latin='Cum Laude';else latin='Above 1.75';}
+  document.getElementById('gLatin').textContent=latin;
+}
+
+/* ---------- reference panel ---------- */
+function renderRef(){
+  document.getElementById('panel-ref').innerHTML=`<div class="ref">
+   <div class="card"><h2>Table of grade equivalents</h2>
+    <div class="tbl"><table class="eq"><thead><tr><th>Grade</th><th>Letter</th><th>Percentage</th><th>Classification</th></tr></thead><tbody>
+    ${SCALE.map((r,i)=>`<tr><td class="mono">${r[1].toFixed(2)}</td><td>${r[2]}</td><td class="mono">${i===0?'97 and above':i===SCALE.length-1?'75':r[0]+' – '+(SCALE[i-1][0]-1)}</td><td>${r[3]}</td></tr>`).join('')}
+    <tr><td class="mono">5.00</td><td>F</td><td class="mono">below 75</td><td>Failed</td></tr>
+    <tr><td class="mono">6.0</td><td>FA</td><td></td><td>Failure due to absences</td></tr>
+    <tr><td class="mono">8.0</td><td>UW</td><td></td><td>Unauthorized or unreported withdrawal</td></tr>
+    <tr><td class="mono">9.0</td><td>DRP</td><td></td><td>Dropped (with permission)</td></tr></tbody></table></div>
+    <p class="note">Student Handbook 2025–2026, p. 31.</p></div>
+   <div class="card"><h2>How a course grade is computed</h2>
+    <p>Each term has three exams (Prelim, Midterm, Finals). Your ERP class page sets the shares, e.g. Class Standing 65% and Major Exam 35%, with a passing percentage of 50.</p>
+    <div class="formula">term       = class standing pts + exam pts
+cumulative = average of terms so far
+transmuted = 75 + (cumulative − passing) × 25 ÷ (100 − passing)
+grade      = equivalent of the transmuted value</div>
+    <p>Check with your IASEC Midterm: (81 + 75) ÷ 2 = 78 → 75 + 28 × 0.5 = 89 → <b>1.75</b>. Your Prelim (81 → 90.5) shows as 1.75, so the ERP drops the decimals instead of rounding up.</p>
+    <p class="note">How lecture and lab exams are merged depends on the instructor or syllabus. The calculator lets you pick the method.</p></div>
+   <div class="card"><h2>Honors</h2>
+    <ul><li><b>President's List:</b> semestral GWA 1.00–1.25</li><li><b>Dean's List:</b> semestral GWA 1.26–1.75</li><li>No grade lower than 2.00 in any subject (NSTP only needs a pass). All registered units count, TPE included. You must carry the full curriculum load.</li></ul>
+    <ul><li><b>Summa Cum Laude:</b> 1.00–1.25</li><li><b>Magna Cum Laude:</b> above 1.25 to 1.50</li><li><b>Cum Laude:</b> above 1.50 to 1.75</li><li>No grade lower than 2.00 in all academic subjects, no FA or UW marks, TPE passed in the first two years, NSTP in the first year.</li></ul>
+    <p class="note">Handbook pp. 32 and 54–55.</p></div>
+   <div class="card"><h2>Other rules that affect grades</h2>
+    <ul><li>More than 20% absences gives an FA (6.0). Limits: 3 absences for once-a-week classes, 7 for twice a week, 10 for three times a week.</li>
+    <li>Dropping before the midterm exam gives DRP. Stopping without the form gives UW.</li>
+    <li>No credit for an advanced subject if you fail its prerequisite.</li>
+    <li>School of Computing: failing a professional course three times, or failing 50% of courses, means you'll be advised to shift programs.</li>
+    <li>A faculty member can file a change of grade within one school year.</li></ul>
+    <p class="note">Handbook pp. 29–31 and 73. Curriculum: BSITAreaWebDev2022, 165 units.</p></div>
+  </div>`;
+}
+
+/* ---------- wiring ---------- */
+function setTab(t){S.tab=t;['course','gwa','ref'].forEach(x=>{document.getElementById('panel-'+x).hidden=x!==t;document.getElementById('tab-'+x).setAttribute('aria-selected',x===t)});save()}
+function setPath(path,val){
+  const s=sub();const parts=path.split('.');let o;
+  if(parts[0]==='sub'){s[parts[1]]=val;return}
+  o=s.periods;parts.shift();
+  for(let i=0;i<parts.length-1;i++)o=o[parts[i]];o[parts[parts.length-1]]=val;
+}
+const root=document.body;
+function onField(e){
+  const el=e.target;
+  if(el.id==='subSel'){S.cur=el.value;save();renderCourse();return}
+  if(el.dataset.k){setPath(el.dataset.k,el.value);save();
+    if(['sub.csW','sub.exW'].includes(el.dataset.k)&&e.type==='change'){renderCourse();return}
+    updateCourse();return}
+  const g=el.dataset.g;if(!g)return;
+  if(g==='nstp')S.gwa.nstp=el.checked;
+  else if(g.startsWith('g.')){const c=g.slice(2);if(el.value)S.gwa.grades[c]=el.value;else delete S.gwa.grades[c]}
+  else if(g.startsWith('e.'))S.gwa.elect[g.slice(2)]=el.value;
+  save();updateGWA();
+}
+root.addEventListener('input',onField);
+root.addEventListener('change',onField);
+let delArm=0,clrArm=0;
+root.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;const s=sub();
+  if(a==='tab'){setTab(b.dataset.t);return}
+  if(a==='mode'){s.periods[+b.dataset.i].mode=b.dataset.m;save();renderCourse();return}
+  if(a==='add-item'){const p=s.periods[+b.dataset.i];p.items.push({n:'',s:'',m:''});save();renderCourse();const j=p.items.length-1;const el=document.getElementById('i'+b.dataset.i+'n'+j);if(el)el.focus();return}
+  if(a==='del-item'){const p=s.periods[+b.dataset.i];p.items.splice(+b.dataset.j,1);if(!p.items.length)p.items.push({n:'',s:'',m:''});save();renderCourse();return}
+  if(a==='add-sub'){const n=blankSubject();S.subjects.push(n);S.cur=n.id;save();renderCourse();document.getElementById('sCode').focus();return}
+  if(a==='del-sub'){if(S.subjects.length<2)return;
+    if(Date.now()-delArm>3000){delArm=Date.now();b.textContent='Tap again to delete';setTimeout(()=>{if(b.isConnected)b.textContent='Delete'},3000);return}
+    S.subjects=S.subjects.filter(x=>x.id!==s.id);S.cur=S.subjects[0].id;delArm=0;save();renderCourse();return}
+  if(a==='clear-gwa'){
+    if(Date.now()-clrArm>3000){clrArm=Date.now();b.textContent='Tap again to clear';setTimeout(()=>{if(b.isConnected)b.textContent='Clear all grades'},3000);return}
+    S.gwa.grades={};clrArm=0;save();renderGWA();return}
+  if(a==='send'){
+    const R=compute(s);const g=R[2].grade;const m=document.getElementById('sendMsg');
+    if(g==null){m.textContent='Finish all three terms first.';return}
+    const code=(s.code||'').trim().toUpperCase();let slot=null;
+    CUR.forEach(sem=>sem.c.forEach(c=>{if(c[0]===code)slot=c[0]}));
+    if(!slot)Object.keys(S.gwa.elect).forEach(k=>{if(S.gwa.elect[k]===code)slot=k});
+    if(!slot&&ELECT.some(e=>e[0]===code)){const free=['ELECTIVE1','ELECTIVE2','ELECTIVE3','ELECTIVE4'].find(k=>!S.gwa.elect[k]);if(free){S.gwa.elect[free]=code;slot=free}}
+    if(!slot){m.textContent=code?`${code} isn't in the BSIT Web Dev curriculum. Check the course code.`:'Enter the course code first.';return}
+    S.gwa.grades[slot]=g.toFixed(2);save();renderGWA();m.textContent=`Saved ${g.toFixed(2)} for ${code} in the GWA tab.`;return}
+});
+renderCourse();renderGWA();renderRef();setTab(S.tab||'course');
+})();
+</script>
+</body>
+</html>
