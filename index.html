@@ -13,34 +13,20 @@ html,body{min-height:100%}
 body{margin:0}
 img{max-width:100%}
 [hidden]{display:none!important}
-/* Layout: HAU student-portal shell — maroon sidebar nav on the left, frosted white record cards on a pale grey campus-toned ground; sidebar becomes a top bar on phones */
+/* Layout: HAU student-portal shell in white and red glass — red frosted sidebar on the left, frosted white record cards floating over a soft white ground with blurred red light; sidebar becomes a top bar on phones. Single light look by design. */
 :root{
-  --bg:#ecebec; --bg2:#f8f8f9; --surface:#ffffff; --zebra:#f5f5f7; --field:#ffffff;
-  --ink:#24262c; --muted:#6f737c; --line:#e3e3e8;
-  --accent:#9c1c1f; --accent-soft:#f8e7e7;
-  --side1:#a11d1f; --side2:#5a0b0e; --side-ink:#ffffff; --gold:#e9cf96;
-  --good:#23794a; --good-soft:#e2f2e8; --warn:#9a5b00; --warn-soft:#fbefd9; --bad:#b0281f; --bad-soft:#fbe5e3;
-  --shadow:0 10px 28px rgba(60,20,20,.10),0 1px 3px rgba(0,0,0,.06);
+  --bg:#fbf8f8; --surface:rgba(255,255,255,.55); --solid:#ffffff; --zebra:rgba(176,30,34,.045); --field:rgba(255,255,255,.75);
+  --ink:#2a1d1f; --muted:#7a6a6c; --line:rgba(120,30,34,.12); --glass-edge:rgba(255,255,255,.75);
+  --accent:#b01e22; --accent-soft:rgba(176,30,34,.10);
+  --side1:rgba(196,32,36,.92); --side2:rgba(112,12,16,.94); --side-ink:#ffffff; --gold:#f2d39a;
+  --good:#23794a; --good-soft:rgba(35,121,74,.12); --warn:#9a5b00; --warn-soft:rgba(154,91,0,.12); --bad:#b0281f; --bad-soft:rgba(176,40,31,.12);
+  --shadow:0 12px 32px rgba(140,20,24,.10),0 2px 6px rgba(140,20,24,.05);
   --f:"Poppins","Segoe UI",system-ui,sans-serif;
   --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#111113; --bg2:#18181b; --surface:#1d1d21; --zebra:#232328; --field:#16161a;
-  --ink:#ececef; --muted:#a0a3ab; --line:#313137;
-  --accent:#f08b8b; --accent-soft:#3a1d1f;
-  --side1:#7e1517; --side2:#3a0709; --side-ink:#ffffff; --gold:#d9b770;
-  --good:#6cc493; --good-soft:#173324; --warn:#e2a54a; --warn-soft:#3a2a12; --bad:#f08a80; --bad-soft:#3d1a17;
-  --shadow:0 10px 28px rgba(0,0,0,.45),0 1px 3px rgba(0,0,0,.4); color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#111113; --bg2:#18181b; --surface:#1d1d21; --zebra:#232328; --field:#16161a;
-  --ink:#ececef; --muted:#a0a3ab; --line:#313137;
-  --accent:#f08b8b; --accent-soft:#3a1d1f;
-  --side1:#7e1517; --side2:#3a0709; --side-ink:#ffffff; --gold:#d9b770;
-  --good:#6cc493; --good-soft:#173324; --warn:#e2a54a; --warn-soft:#3a2a12; --bad:#f08a80; --bad-soft:#3d1a17;
-  --shadow:0 10px 28px rgba(0,0,0,.45),0 1px 3px rgba(0,0,0,.4); color-scheme:dark}
-
 *{box-sizing:border-box}
-body{background:radial-gradient(1200px 700px at 85% 0%,var(--bg2),var(--bg) 70%) fixed,var(--bg);color:var(--ink);font-family:var(--f);font-size:14px;line-height:1.55}
+body{background:var(--bg);color:var(--ink);font-family:var(--f);font-size:14px;line-height:1.55}
 button,input,select{font-family:var(--f)}
 :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 
@@ -199,6 +185,42 @@ label.f{display:flex;flex-direction:column;gap:5px;font-size:11.5px;color:var(--
 .ref p,.ref li{font-size:13.5px;max-width:65ch}
 .ref ul{padding-left:18px;margin:8px 0}
 .formula{font-family:var(--f-mono);font-size:12.5px;background:var(--zebra);border-radius:10px;padding:12px 14px;overflow-x:auto;white-space:pre}
+
+/* glassmorphism */
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(520px 420px at 92% 6%,rgba(214,40,46,.22),transparent 70%),
+    radial-gradient(460px 380px at 30% 96%,rgba(214,40,46,.16),transparent 70%),
+    radial-gradient(600px 500px at 60% 45%,rgba(255,255,255,.9),transparent 70%),
+    linear-gradient(160deg,#ffffff 0%,#f8eeee 55%,#fdf9f9 100%)}
+body::after{content:"";position:fixed;z-index:-1;pointer-events:none;width:340px;height:340px;right:6%;bottom:8%;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,rgba(255,120,120,.35),rgba(176,30,34,.18) 60%,transparent 72%);filter:blur(30px)}
+.card,.period,.sem{background:var(--surface);border:1px solid var(--glass-edge);
+  -webkit-backdrop-filter:blur(20px) saturate(160%);backdrop-filter:blur(20px) saturate(160%)}
+.side{-webkit-backdrop-filter:blur(16px) saturate(150%);backdrop-filter:blur(16px) saturate(150%);border:1px solid rgba(255,255,255,.18);border-left:0;border-top:0}
+.nav-item{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 6px 16px rgba(60,0,4,.18),inset 0 1px 0 rgba(255,255,255,.18)}
+.nav-item.pill,.sub-item.on{background:rgba(255,255,255,.92);color:#8a1418;border-color:transparent}
+.seal{background:rgba(255,255,255,.9)}
+.term{background:rgba(255,255,255,.6);border:1px solid var(--glass-edge)}
+.term.final{background:linear-gradient(160deg,rgba(214,40,46,.95),rgba(112,12,16,.95));border-color:rgba(255,255,255,.3)}
+.btn{background:rgba(255,255,255,.7);border-color:var(--glass-edge);box-shadow:0 2px 8px rgba(140,20,24,.06)}
+.btn.primary{background:linear-gradient(160deg,#d0262b,#7c1014)}
+.seg{background:rgba(176,30,34,.07)}
+.seg button[aria-pressed="true"]{background:rgba(255,255,255,.95)}
+.pres{background:rgba(176,30,34,.04);border-top:1px solid var(--line)}
+input,select{border-color:rgba(120,30,34,.14)}
+input:focus,select:focus{background:#fff}
+.chip.none{background:rgba(120,30,34,.06)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.card,.period,.sem{background:rgba(255,255,255,.94)}}
+@media (max-width:600px){
+  .crow{grid-template-columns:minmax(0,1fr) 40px 96px;grid-template-areas:"code u g" "title u g";min-width:0;padding-inline:16px;row-gap:2px}
+  .crow.head{display:none}
+  .crow .code{grid-area:code;text-align:left;font-weight:600;color:var(--accent)}
+  .crow .code small{display:inline;margin-left:6px}
+  .crow .title{grid-area:title;text-align:left}
+  .crow .u{grid-area:u}
+  .crow>select{grid-area:g}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
