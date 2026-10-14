@@ -11,9 +11,13 @@ const PORT = process.env.PORT || 3000;
 // Accept a few common names so a small typo in the Render key still works.
 const URI_KEYS = ['MONGODB_URI', 'MONGO_URI', 'MONGODB_URL', 'MONGO_URL', 'DATABASE_URL'];
 const uriKey = Object.keys(process.env).find(k => URI_KEYS.includes(k.trim().toUpperCase()) && String(process.env[k]).trim());
-const MONGODB_URI = uriKey ? String(process.env[uriKey]).trim().replace(/^["']|["']$/g, '') : '';
+const clean_ = v => String(v || '').trim().replace(/^["']|["']$/g, '');
+const looksLikeUri = v => /^mongodb(\+srv)?:\/\//.test(clean_(v));
+// If the connection string was pasted into MONGODB_DB by mistake, use it as the URI.
+const MONGODB_URI = uriKey ? clean_(process.env[uriKey]) : (looksLikeUri(process.env.MONGODB_DB) ? clean_(process.env.MONGODB_DB) : '');
+if (!uriKey && MONGODB_URI) console.log('Using database connection string found in MONGODB_DB. Rename that key to MONGODB_URI when you can.');
 if (uriKey) console.log(`Using database connection string from ${uriKey.trim()}.`);
-const DB_NAME = process.env.MONGODB_DB || 'hau_soc_grader';
+const DB_NAME = (process.env.MONGODB_DB && !/^mongodb/.test(process.env.MONGODB_DB.trim())) ? process.env.MONGODB_DB.trim() : 'hau_soc_grader';
 const JWT_SECRET = process.env.JWT_SECRET;
 const PROD = process.env.NODE_ENV === 'production';
 const COOKIE = 'hsg_session';
