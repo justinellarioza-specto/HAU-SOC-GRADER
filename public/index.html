@@ -243,11 +243,56 @@ input:focus,select:focus{background:#fff}
   .hint{margin-left:0}
   .seg.big button{flex:1 1 40%}
 }
+
+/* auth + account */
+.auth{min-height:100vh;display:grid;place-items:center;padding-block:32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.auth-card{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--glass-edge);border-radius:22px;box-shadow:var(--shadow);padding:30px 28px;
+  -webkit-backdrop-filter:blur(22px) saturate(160%);backdrop-filter:blur(22px) saturate(160%);display:flex;flex-direction:column;align-items:center;gap:10px}
+.auth-card .seal{width:78px;height:78px}.auth-card .seal svg{width:52px;height:52px}
+.auth-title{font-weight:800;font-size:24px;color:var(--accent);text-transform:uppercase;margin:6px 0 0}
+.auth-sub{margin:0 0 6px;text-align:center;color:var(--muted);font-size:13px}
+.auth-tabs{display:flex;width:100%;background:rgba(176,30,34,.07);border-radius:14px;padding:4px;gap:4px}
+.auth-tabs button{flex:1;border:0;background:transparent;font:600 13px var(--f);color:var(--muted);padding:10px;border-radius:11px;cursor:pointer}
+.auth-tabs button[aria-selected="true"]{background:linear-gradient(160deg,#d0262b,#7c1014);color:#fff;box-shadow:0 4px 12px rgba(176,30,34,.3)}
+#authForm{width:100%;display:flex;flex-direction:column;gap:12px;margin-top:8px}
+#authForm input{padding:11px 12px;font-size:14px}
+.auth-err{min-height:1.2em;font-size:12.5px;color:var(--bad);font-weight:500}
+.auth-submit{padding:12px;font-size:14px}
+.userbox{display:flex;align-items:center;gap:10px;margin-right:18px;padding:12px;border-radius:14px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22)}
+.uinfo{min-width:0;flex:1}
+.uname{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.uno{font-family:var(--f-mono);font-size:11.5px;opacity:.85}
+.usync{font-size:10.5px;opacity:.75;margin-top:2px}
+.btn.logout{background:rgba(255,255,255,.9);color:#8a1418;border-color:transparent;padding:7px 12px}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.backup{margin-top:20px}
+@media (max-width:860px){.userbox{margin-right:0;padding:8px 10px}.usync{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
-<div class="app">
+<div class="auth" id="auth" hidden>
+  <div class="auth-card">
+    <div class="seal" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M32 6 52 13v17c0 13-8.5 22.5-20 28C20.5 52.5 12 43 12 30V13z" fill="#a11d1f"/><path d="M32 12 46 17v13c0 9.6-6 17-14 21.6C24 47 18 39.6 18 30V17z" fill="#fff"/><text x="32" y="36.5" text-anchor="middle" font-family="Poppins,Segoe UI,sans-serif" font-weight="800" font-size="12" fill="#a11d1f">SOC</text></svg></div>
+    <h1 class="auth-title">HAU SOC Grader</h1>
+    <p class="auth-sub">Track your course grades and GWA. Your data is saved to your account.</p>
+    <div class="auth-tabs" role="tablist">
+      <button type="button" role="tab" id="authLogin" aria-selected="true">Log in</button>
+      <button type="button" role="tab" id="authSignup" aria-selected="false">Sign up</button>
+    </div>
+    <form id="authForm" data-mode="login" novalidate>
+      <label class="f signup-only" for="aName" hidden>Name<input id="aName" name="aName" autocomplete="name" maxlength="80" placeholder="Juan Dela Cruz"></label>
+      <label class="f" for="aNo">Student number<input id="aNo" name="aNo" autocomplete="username" maxlength="20" required placeholder="e.g. 20231234"></label>
+      <label class="f" for="aPass">Password<input id="aPass" name="aPass" type="password" autocomplete="current-password" minlength="8" maxlength="128" required></label>
+      <label class="f signup-only" for="aPass2" hidden>Confirm password<input id="aPass2" name="aPass2" type="password" autocomplete="new-password" minlength="8" maxlength="128"></label>
+      <div class="auth-err" id="authErr" role="alert"></div>
+      <button class="btn primary auth-submit" id="authSubmit" type="submit">Log in</button>
+      <p class="note signup-only" hidden>Use at least 8 characters for your password.</p>
+    </form>
+  </div>
+</div>
+<input type="file" id="importFile" accept="application/json,.json" hidden>
+<div class="app" id="app" hidden>
   <aside class="side">
     <div class="brand">
       <div class="seal" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M32 6 52 13v17c0 13-8.5 22.5-20 28C20.5 52.5 12 43 12 30V13z" fill="#a11d1f"/><path d="M32 12 46 17v13c0 9.6-6 17-14 21.6C24 47 18 39.6 18 30V17z" fill="#fff"/><text x="32" y="36.5" text-anchor="middle" font-family="Poppins,Segoe UI,sans-serif" font-weight="800" font-size="12" fill="#a11d1f">SOC</text></svg></div>
@@ -260,6 +305,10 @@ input:focus,select:focus{background:#fff}
       <button class="nav-item" role="tab" id="tab-gwa" data-act="tab" data-t="gwa">All Semesters</button>
       <button class="nav-item" role="tab" id="tab-ref" data-act="tab" data-t="ref">Grading Rules</button>
     </nav>
+    <div class="userbox" id="userbox" hidden>
+      <div class="uinfo"><div class="uname" id="uName"></div><div class="uno" id="uNo"></div><div class="usync" id="syncState"></div></div>
+      <button class="btn logout" data-act="logout">Log out</button>
+    </div>
     <div class="side-foot">© HAU-SOC-GRADER · BSIT Web Dev 2022</div>
   </aside>
   <main class="main">
@@ -293,31 +342,34 @@ const GOPTS=[['',' — '],['1.00','1.00'],['1.25','1.25'],['1.50','1.50'],['1.75
 const PNAMES=['Prelim','Midterm','Finals'];
 
 /* ---------- state ---------- */
-const KEY='hau-grade-calc-v1';
+const KEY_BASE='hau-grade-calc-v1';
 function blankPeriod(mode){return {mode:mode||'itemized',cs:'',ex:'',items:[{n:'',s:'',m:''}],lec:{s:'',m:''},lab:{s:'',m:''},method:'raw',lecW:'50'}}
-function sampleSubject(){
-  // IASEC scores from Canvas (grouped by due date). Blank score = not graded or missing, so it is not counted.
-  const it=l=>l.map(a=>({n:a[0],s:a[1]==null?'':String(a[1]),m:String(a[2])}));
-  const p0=blankPeriod('quick');p0.cs='61';p0.ex='20';
-  p0.items=it([['Lecture Activity 1: Explore Social Engineering',9,10],['Quiz 1 (lecture) IA and security concepts',29,35],['Quiz: Lecture Module 2',17,30],['Lab Activity 1: Linux Terminal Basics',14,15],['Quiz: Modules 1-2 (lec) Netacad',22,30],['QUIZ#1 (lecture)',12.75,15],['Packet Tracer Lab #3 Wireless Config',60,60],['Hands-On (Lab) Investigate Threat Landscape',48,50],['Lab Activity #2 Exploring DNS Traffic',30,30],['Prelim Badge (Online) Linux Basics',90,100],['Quiz#1 (lab) Investigate Threat Landscape',26,40],['Individual Assignment: Case Analysis',28,30],['Prelim Badge: Linux Basics (Proctored)',25,25]]);
-  p0.lec={s:'34.33',m:'50'};p0.lab={s:'7',m:'15'};
-  const p1=blankPeriod('quick');p1.cs='55';p1.ex='20';
-  p1.items=it([['Lab Activity (Midterm) #2 Recover Password',24,25],['Lab Activity (Midterm) #1 Linux Hardening',24,25],['Hands-On Midterm#2 Isolated Hacking Lab (missing)',null,100],['Hands-On #5 XSS using JuiceShop',73,75],['Hands-On Lab#1 Wireshark Telnet vs SSH (missing)',null,50],['Activity #2 (MP) OWASP Juice Shop Install',73,75],['Assignment #1 Midterm Netacad',30,35],['LA# Evaluate Security Reports',40,50],['LA#2 Identify Relevant Threat Intelligence',45,50],['Mid_Q3 Lab Part 2: Scanning and Exploitation',12,16],['Mid_Q3 Lab Part 1: Ethical Hacking',11,14],['Hands-On #1 Midterm PODMAN',33,35],['Assignment#2 Ethical Hacking Terms',90,100]]);
-  p1.lec={s:'34.67',m:'50'};p1.lab={s:'23',m:'35'};
-  const p2=blankPeriod('itemized');
-  p2.items=it([['Module 4 Lab Act#3 Vulnerability Assessment',90,100],['Module 2 Packet Tracer Final#1 (not graded yet)',null,100],['Lab Assignment #1 Personal Code of Ethics',30,35],['Hands-On #4 Risk Management',45,50],['Module 1 Reflection Activity (missing)',null,20],['Quiz#2 Vulnerability Assessment Lab',95,100],['HA#5 Attack Analysis Netacad',48,50],['Quiz#3 Module 6 Cyber Kill Chain',15,15],['Chapter 4 Exam',null,100],['Chapter 7 Exam',null,100],['Group Work: Case Analysis 2',null,30]]);
-  p2.lec={s:'21',m:'50'};p2.lab={s:'24',m:'30'};
-  return {id:'s'+Date.now(),code:'6IASEC',name:'Information Assurance and Security',csW:'65',exW:'35',pass:'50',round:'trunc',periods:[p0,p1,p2]};
-}
 function blankSubject(){return {id:'s'+Date.now()+Math.floor(Math.random()*1e4),code:'',name:'New subject',csW:'65',exW:'35',pass:'50',round:'trunc',periods:[blankPeriod(),blankPeriod(),blankPeriod()]}}
-let S=null;
-try{S=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){S=null}
-if(!S||!S.subjects||!S.subjects.length){const sub=sampleSubject();S={tab:'course',subjects:[sub],cur:sub.id,gwa:{grades:{},elect:{},nstp:false}}}
-if(!S.v||S.v<2){S.tab='mine'}
-if(!S.v||S.v<3){const fresh=sampleSubject();const i=S.subjects.findIndex(x=>(x.code||'').toUpperCase()==='6IASEC');if(i>=0){fresh.id=S.subjects[i].id;S.subjects[i]=fresh}else S.subjects.push(fresh)}
-S.v=3;S.year=S.year||3;S.sem=S.sem||1;
-S.gwa=S.gwa||{grades:{},elect:{},nstp:false};S.gwa.grades=S.gwa.grades||{};S.gwa.elect=S.gwa.elect||{};
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+let KEY=KEY_BASE,S=null,API=false,USER=null,syncTimer=null;
+function readLocal(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
+function normalize(raw){
+  let s=raw&&typeof raw==='object'?raw:{};
+  if(!Array.isArray(s.subjects))s.subjects=[];
+  s.year=s.year||3;s.sem=s.sem||1;
+  if(!s.v||s.v<2)s.tab='mine';s.v=3;
+  s.gwa=s.gwa||{};s.gwa.grades=s.gwa.grades||{};s.gwa.elect=s.gwa.elect||{};s.gwa.nstp=!!s.gwa.nstp;
+  if(!s.subjects.length){const c=CUR[(s.year-1)*2+(s.sem-1)].c[0];const x=blankSubject();x.code=c[0];x.name=c[1];s.subjects.push(x)}
+  if(!s.subjects.some(x=>x.id===s.cur))s.cur=s.subjects[0].id;
+  return s;
+}
+function setSync(t){const el=document.getElementById('syncState');if(el)el.textContent=t}
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+  if(!API||!USER)return;
+  setSync('Saving…');clearTimeout(syncTimer);
+  syncTimer=setTimeout(pushData,800);
+}
+async function pushData(){
+  try{const r=await fetch('api/data',{method:'PUT',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({data:S})});
+    if(r.status===401){setSync('Session ended. Log in again.');return}
+    setSync(r.ok?'Saved to your account':'Not saved. Check your connection.')}
+  catch(e){setSync('Offline. Saved on this device only.')}
+}
 function sub(){return S.subjects.find(x=>x.id===S.cur)||S.subjects[0]}
 
 /* ---------- math ---------- */
@@ -571,7 +623,11 @@ function renderMine(){
     <div class="semfoot big"><span>Semestral GWA <b class="mono" id="mGwa">—</b></span><span class="muted" id="mUnits"></span></div>
    </section>
    <div class="msg" id="mineMsg"></div>
-   <p class="note">Need your cumulative GWA or Latin honors standing? Open <button class="linkbtn" data-act="tab" data-t="gwa">All Semesters</button>.</p>`;
+   <p class="note">Need your cumulative GWA or Latin honors standing? Open <button class="linkbtn" data-act="tab" data-t="gwa">All Semesters</button>.</p>
+   <div class="card backup"><h3>Backup</h3>
+     <p class="note" style="margin-top:0">Save all your subjects and grades to a file, or load a backup file.</p>
+     <div class="btnrow"><button class="btn" data-act="export">Export backup</button><button class="btn" data-act="import">Import backup</button></div>
+     <div class="msg" id="backupMsg"></div></div>`;
   updateMine();
 }
 function updateMine(){
@@ -644,11 +700,22 @@ function onField(e){
   const inMine=!!el.closest('#panel-mine');if(e.type==='change'){if(inMine)renderGWA();else renderMine()}
 }
 root.addEventListener('input',onField);
+document.getElementById('importFile').addEventListener('change',async e=>{
+  const f=e.target.files[0];if(!f)return;const msg=document.getElementById('backupMsg');
+  try{const j=JSON.parse(await f.text());const d=j&&j.data?j.data:j;if(!d||!Array.isArray(d.subjects))throw 0;
+    S=normalize(d);save();renderMine();renderCourse();renderGWA();setTab(S.tab||'mine');
+    document.getElementById('backupMsg').textContent=`Imported ${S.subjects.length} subject${S.subjects.length===1?'':'s'}.`}
+  catch(x){msg.textContent="That file isn't a HAU SOC Grader backup."}
+  e.target.value='';
+});
 root.addEventListener('change',onField);
 let delArm=0,clrArm=0;
 root.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;const s=sub();
   if(a==='tab'){setTab(b.dataset.t);window.scrollTo(0,0);return}
+  if(a==='logout'){clearTimeout(syncTimer);(async()=>{try{await pushData()}catch(x){}try{await fetch('api/logout',{method:'POST',credentials:'same-origin'})}catch(x){}location.reload()})();return}
+  if(a==='export'){const blob=new Blob([JSON.stringify({app:'hau-soc-grader',version:1,data:S},null,1)],{type:'application/json'});const u=URL.createObjectURL(blob);const l=document.createElement('a');l.href=u;l.download='hau-soc-grader-backup.json';document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);return}
+  if(a==='import'){document.getElementById('importFile').click();return}
   if(a==='year'){S.year=+b.dataset.v;save();renderMine();renderCourse();return}
   if(a==='sem'){S.sem=+b.dataset.v;save();renderMine();renderCourse();return}
   if(a==='compute'){
@@ -680,7 +747,57 @@ root.addEventListener('click',e=>{
     if(!slot){m.textContent=code?`${code} isn't in the BSIT Web Dev curriculum. Check the course code.`:'Enter the course code first.';return}
     S.gwa.grades[slot]=g.toFixed(2);save();renderGWA();renderMine();m.textContent=`Saved ${g.toFixed(2)} as your ${code} grade in My Subjects.`;return}
 });
-renderMine();renderCourse();renderGWA();renderRef();setTab(S.tab||'mine');
+function start(){
+  document.getElementById('auth').hidden=true;document.getElementById('app').hidden=false;
+  const ub=document.getElementById('userbox');
+  if(USER){ub.hidden=false;document.getElementById('uName').textContent=USER.name;document.getElementById('uNo').textContent=USER.studentNumber}else ub.hidden=true;
+  renderMine();renderCourse();renderGWA();renderRef();setTab(S.tab||'mine');
+}
+async function loadAccount(){
+  KEY=KEY_BASE+':'+USER.studentNumber.toUpperCase();
+  let data=null;
+  try{const r=await fetch('api/data',{credentials:'same-origin'});if(r.ok)data=(await r.json()).data}catch(e){}
+  if(!data){const cached=readLocal(KEY)||readLocal(KEY_BASE);S=normalize(cached);start();if(cached)pushData();return}
+  S=normalize(data);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+  start();setSync('Saved to your account');
+}
+function showAuth(mode){
+  document.getElementById('app').hidden=true;document.getElementById('auth').hidden=false;setAuthMode(mode||'login');
+}
+function setAuthMode(m){
+  const f=document.getElementById('authForm');f.dataset.mode=m;
+  document.getElementById('authLogin').setAttribute('aria-selected',m==='login');
+  document.getElementById('authSignup').setAttribute('aria-selected',m==='signup');
+  document.querySelectorAll('.signup-only').forEach(el=>el.hidden=m!=='signup');
+  document.getElementById('aName').required=m==='signup';document.getElementById('aPass2').required=m==='signup';
+  document.getElementById('aPass').autocomplete=m==='signup'?'new-password':'current-password';
+  document.getElementById('authSubmit').textContent=m==='signup'?'Create account':'Log in';
+  document.getElementById('authErr').textContent='';
+}
+document.getElementById('authForm').addEventListener('submit',async e=>{
+  e.preventDefault();const f=e.target,m=f.dataset.mode,err=document.getElementById('authErr');
+  const body={studentNumber:f.aNo.value.trim(),password:f.aPass.value};
+  if(m==='signup'){body.name=f.aName.value.trim();if(f.aPass.value!==f.aPass2.value){err.textContent='Passwords do not match.';return}}
+  const btn=document.getElementById('authSubmit');btn.disabled=true;err.textContent='';
+  try{const r=await fetch(m==='signup'?'api/signup':'api/login',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify(body)});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok){err.textContent=j.error||'Something went wrong. Try again.';return}
+    USER=j.user;f.reset();await loadAccount();
+  }catch(x){err.textContent='Cannot reach the server. Check your connection.'}
+  finally{btn.disabled=false}
+});
+document.getElementById('authLogin').addEventListener('click',()=>setAuthMode('login'));
+document.getElementById('authSignup').addEventListener('click',()=>setAuthMode('signup'));
+async function boot(){
+  try{
+    const r=await fetch('api/me',{credentials:'same-origin'});
+    const json=(r.headers.get('content-type')||'').includes('application/json');
+    if(!json)throw new Error('no api');
+    API=true;
+    if(r.ok){USER=(await r.json()).user;await loadAccount()}else showAuth('login');
+  }catch(e){API=false;S=normalize(readLocal(KEY_BASE));start()}
+}
+boot();
 })();
 </script>
 </body>

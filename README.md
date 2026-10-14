@@ -2,7 +2,29 @@
 
 A grade and GWA calculator for Holy Angel University School of Computing students, BSIT Web Development track (2022 curriculum).
 
-Open `index.html` in a browser. It runs entirely offline, and your entries are saved in your browser only.
+Students sign up with their name, student number and password. Their subjects and grades are saved to MongoDB, so they can log in from any device.
+
+## Run it
+
+You need Node.js 18 or newer and a MongoDB database (MongoDB Atlas free tier works).
+
+1. Copy `.env.example` to `.env` and fill in `MONGODB_URI` and `JWT_SECRET` (any long random string).
+2. `npm install`
+3. `npm run dev`, then open http://localhost:3000
+
+## Deploy on Render
+
+1. In Render, choose **New → Blueprint** and pick this repo. `render.yaml` creates a Node web service.
+2. When Render asks for `MONGODB_URI`, paste your MongoDB connection string. `JWT_SECRET` is generated for you.
+3. In MongoDB Atlas, go to **Network Access** and allow `0.0.0.0/0`, since Render's free plan has no fixed IP.
+
+## Accounts and data
+
+- Passwords are hashed with bcrypt and never stored as plain text.
+- Logins use an HTTP-only session cookie that lasts 30 days.
+- Each account's data is stored in the `users` collection of the `hau_soc_grader` database.
+- **Export backup / Import backup** on the My Subjects page saves or loads all your data as a JSON file.
+- Opening `public/index.html` directly, without the server, still works in offline mode and saves to the browser only.
 
 ## Features
 

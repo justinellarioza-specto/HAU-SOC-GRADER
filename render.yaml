@@ -1,11 +1,18 @@
 services:
   - type: web
-    name: hau-soc-grader
-    runtime: static
+    name: hau-soc-grader-app
+    runtime: node
+    plan: free
     branch: main
-    buildCommand: echo "No build needed"
-    staticPublishPath: .
-    headers:
-      - path: /*
-        name: X-Frame-Options
-        value: SAMEORIGIN
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_DB
+        value: hau_soc_grader
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
