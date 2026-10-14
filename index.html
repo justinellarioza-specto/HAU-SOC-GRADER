@@ -384,15 +384,31 @@ function periodHTML(s,p,i){
     <div class="pres" id="o${i}"></div>
   </article>`;
 }
+function semSubjects(){
+  const k=(S.year-1)*2+(S.sem-1);
+  return CUR[k].c.map(([code,title])=>{
+    if(/^ELECTIVE/.test(code)){const ch=S.gwa.elect[code];if(!ch)return {code,title:title+' (choose it in My Subjects)',slot:code,pending:true};const e=ELECT.find(x=>x[0]===ch);return {code:ch,title:e?e[1]:title,slot:code}}
+    return {code,title};
+  });
+}
+function openSubject(code,name){
+  let x=S.subjects.find(q=>(q.code||'').toUpperCase()===code);
+  if(!x){x=blankSubject();x.code=code;x.name=name;S.subjects.push(x)}
+  S.cur=x.id;return x;
+}
 function renderCourse(){
   const s=sub();
-  const opts=S.subjects.map(x=>`<option value="${x.id}"${x.id===s.id?' selected':''}>${esc((x.code?x.code+' · ':'')+x.name)}</option>`).join('');
+  const list=semSubjects();const semCodes=list.map(x=>x.code);
+  const semLabel=['1st','2nd','3rd','4th'][S.year-1]+' Year · '+(S.sem===1?'1st':'2nd')+' Semester';
+  const others=S.subjects.filter(x=>!semCodes.includes((x.code||'').toUpperCase()));
+  const opts=`<optgroup label="${semLabel}">${list.map(x=>`<option value="c:${x.code}"${x.pending?' disabled':''}${(s.code||'').toUpperCase()===x.code?' selected':''}>${esc(x.pending?x.title:x.code+' · '+x.title)}</option>`).join('')}</optgroup>`+
+    (others.length?`<optgroup label="Other saved subjects">${others.map(x=>`<option value="id:${x.id}"${x.id===s.id?' selected':''}>${esc((x.code?x.code+' · ':'')+x.name)}</option>`).join('')}</optgroup>`:'');
   document.getElementById('panel-course').innerHTML=`<div class="course">
    <div>
     <div class="card setup"><h2>Subject Data</h2>
     <div><button class="btn" data-act="tab" data-t="mine">← Back to my subjects</button></div>
     <div class="subjrow">
-      <label class="f" for="subSel">Subject<select id="subSel">${opts}</select></label>
+      <label class="f" for="subSel">Subject (${semLabel})<select id="subSel">${opts}</select></label>
       <button class="btn" data-act="add-sub">+ New subject</button>
       <button class="btn danger" data-act="del-sub" id="delSub"${S.subjects.length<2?' disabled':''}>Delete</button>
     </div>
@@ -423,8 +439,8 @@ function renderCourse(){
   renderSubnav();updateCourse();
 }
 function renderSubnav(){
-  const n=document.getElementById('subnav');if(!n)return;const s=sub();
-  n.innerHTML=S.subjects.map(x=>`<button class="sub-item${x.id===s.id&&S.tab==='course'?' on':''}" data-act="pick-sub" data-id="${x.id}" title="${esc(x.name)}">${esc(x.code||x.name)}</button>`).join('');
+  const n=document.getElementById('subnav');if(!n)return;const s=sub();const cur=(s.code||'').toUpperCase();
+  n.innerHTML=semSubjects().filter(x=>!x.pending).map(x=>`<button class="sub-item${x.code===cur&&S.tab==='course'?' on':''}" data-act="open-sub" data-code="${x.code}" data-name="${esc(x.title)}" title="${esc(x.title)}">${esc(x.code)}</button>`).join('');
 }
 function updateCourse(){
   const s=sub();const R=compute(s);const P=num(s.pass)??50;
@@ -605,14 +621,17 @@ function setPath(path,val){
 const root=document.body;
 function onField(e){
   const el=e.target;
-  if(el.id==='subSel'){S.cur=el.value;save();renderCourse();return}
+  if(el.id==='subSel'){const v=el.value;
+    if(v.startsWith('c:')){const code=v.slice(2);const it=semSubjects().find(x=>x.code===code);openSubject(code,it?it.title:code)}
+    else S.cur=v.slice(3);
+    save();renderCourse();return}
   if(el.dataset.k){setPath(el.dataset.k,el.value);save();
     if(['sub.csW','sub.exW'].includes(el.dataset.k)&&e.type==='change'){renderCourse();return}
     updateCourse();return}
   const g=el.dataset.g;if(!g)return;
   if(g==='nstp')S.gwa.nstp=el.checked;
   else if(g.startsWith('g.')){const c=g.slice(2);if(el.value)S.gwa.grades[c]=el.value;else delete S.gwa.grades[c]}
-  else if(g.startsWith('e.'))S.gwa.elect[g.slice(2)]=el.value;
+  else if(g.startsWith('e.')){S.gwa.elect[g.slice(2)]=el.value;if(e.type==='change')renderCourse()}
   save();updateGWA();updateMine();
   const inMine=!!el.closest('#panel-mine');if(e.type==='change'){if(inMine)renderGWA();else renderMine()}
 }
@@ -622,17 +641,16 @@ let delArm=0,clrArm=0;
 root.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;const s=sub();
   if(a==='tab'){setTab(b.dataset.t);window.scrollTo(0,0);return}
-  if(a==='year'){S.year=+b.dataset.v;save();renderMine();return}
-  if(a==='sem'){S.sem=+b.dataset.v;save();renderMine();return}
+  if(a==='year'){S.year=+b.dataset.v;save();renderMine();renderCourse();return}
+  if(a==='sem'){S.sem=+b.dataset.v;save();renderMine();renderCourse();return}
   if(a==='compute'){
     let code=b.dataset.code,name=b.dataset.name;
     if(/^ELECTIVE/.test(code)){const ch=S.gwa.elect[code];const msg=document.getElementById('mineMsg');
       if(!ch){if(msg)msg.textContent='Choose which IT elective you are taking first.';return}
       const e=ELECT.find(x=>x[0]===ch);code=ch;name=e?e[1]:name}
-    let x=S.subjects.find(q=>(q.code||'').toUpperCase()===code);
-    if(!x){x=blankSubject();x.code=code;x.name=name;S.subjects.push(x)}
-    S.cur=x.id;save();renderCourse();setTab('course');window.scrollTo(0,0);return}
+    openSubject(code,name);save();renderCourse();setTab('course');window.scrollTo(0,0);return}
   if(a==='use'){S.gwa.grades[b.dataset.code]=b.dataset.g;save();renderMine();renderGWA();return}
+  if(a==='open-sub'){openSubject(b.dataset.code,b.dataset.name);if(S.tab!=='course')setTab('course');save();renderCourse();return}
   if(a==='pick-sub'){S.cur=b.dataset.id;if(S.tab!=='course')setTab('course');save();renderCourse();return}
   if(a==='mode'){s.periods[+b.dataset.i].mode=b.dataset.m;save();renderCourse();return}
   if(a==='add-item'){const p=s.periods[+b.dataset.i];p.items.push({n:'',s:'',m:''});save();renderCourse();const j=p.items.length-1;const el=document.getElementById('i'+b.dataset.i+'n'+j);if(el)el.focus();return}
