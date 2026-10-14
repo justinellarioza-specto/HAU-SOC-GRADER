@@ -462,7 +462,7 @@ function renderCourse(){
         ${groups}</table></div>
       <aside class="side">
         <section class="box"><h2>Grade summary</h2><div id="sumBox"></div>
-          <div class="btnrow"><button class="btn primary" data-act="send">Save as my final grade</button></div>
+          <div class="btnrow"><button class="btn primary" data-act="send">Save as my final grade</button><button class="btn" data-act="pdf-course">Download PDF</button></div>
           <div class="msg" id="sendMsg"></div></section>
         <section class="box"><h2>What you need on the Finals exam</h2><div id="ladder"></div></section>
         <details class="box"><summary>Settings</summary>
@@ -531,8 +531,8 @@ function renderGWA(){
     </div>
     <div class="opts">
       <label><input type="checkbox" id="optNstp" data-g="nstp"${S.gwa.nstp?' checked':''}> Count CWTS (NSTP) in the GWA</label>
-      <button class="btn" data-act="clear-gwa" id="clearGwa">Clear all grades</button>
-    </div>
+      <button class="btn" data-act="pdf-gwa">Download PDF</button><button class="btn" data-act="clear-gwa" id="clearGwa">Clear all grades</button>
+    </div><div class="msg" id="gwaMsg"></div>
     ${sems}
     <p class="note">FA (6.0) and UW (8.0) count as 5.0. DRP (9.0), INC and blank subjects are left out. PE (TPE) is included, as the handbook requires.</p>`;
   updateGWA();
@@ -603,6 +603,68 @@ grade      = equivalent of the transmuted value</div>
 }
 
 
+/* ---------- PDF export ---------- */
+function loadScript(src){return new Promise((res,rej)=>{const el=document.createElement('script');el.src=src;el.onload=res;el.onerror=rej;document.head.appendChild(el)})}
+async function loadPdf(){
+  if(window.jspdf&&window.jspdf.jsPDF&&window.jspdf.jsPDF.API.autoTable)return;
+  try{await loadScript('vendor/jspdf.umd.min.js');await loadScript('vendor/jspdf.plugin.autotable.min.js')}
+  catch(e){await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js')}
+}
+const MAROON=[139,26,36];
+function pdfStart(title,subtitle){
+  const doc=new window.jspdf.jsPDF({unit:'pt',format:'a4'});
+  doc.setFillColor(...MAROON);doc.rect(0,0,595.28,74,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(19);doc.text(title,40,40);
+  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.text('HAU SOC Grader · School of Computing · BSIT Web Development',40,58);
+  doc.setTextColor(45,59,69);doc.setFontSize(10.5);
+  const lines=[['Student',USER?`${USER.name} (${USER.studentNumber})`:'—'],...subtitle,['Generated',new Date().toLocaleString('en-PH',{dateStyle:'long',timeStyle:'short'})]];
+  let y=100;lines.forEach(([k,v])=>{doc.setFont('helvetica','bold');doc.text(k,40,y);doc.setFont('helvetica','normal');doc.text(String(v),148,y);y+=16});
+  return {doc,y:y+8};
+}
+function pdfTable(doc,y,head,body,opt){
+  doc.autoTable(Object.assign({startY:y,head:[head],body,theme:'grid',margin:{left:40,right:40},
+    styles:{font:'helvetica',fontSize:9.5,cellPadding:5,textColor:[45,59,69],lineColor:[220,224,226]},
+    headStyles:{fillColor:[245,245,245],textColor:[45,59,69],fontStyle:'bold'}},opt||{}));
+  return doc.lastAutoTable.finalY+18;
+}
+function pdfHeading(doc,y,text){if(y>760){doc.addPage();y=50}doc.setFont('helvetica','bold');doc.setFontSize(12.5);doc.setTextColor(...MAROON);doc.text(text,40,y);doc.setTextColor(45,59,69);doc.setFont('helvetica','normal');doc.setFontSize(10.5);return y+10}
+function pdfFinish(doc,name){
+  const n=doc.getNumberOfPages();
+  for(let i=1;i<=n;i++){doc.setPage(i);doc.setFontSize(8.5);doc.setTextColor(120,128,134);
+    doc.text('Computed estimate from HAU SOC Grader. Not an official Holy Angel University document.',40,820);
+    doc.text(`Page ${i} of ${n}`,555,820,{align:'right'})}
+  doc.save(name);
+}
+async function pdfCourse(){
+  await loadPdf();const s=sub();const R=compute(s);
+  let {doc,y}=pdfStart('Course Grade Report',[['Subject',`${s.code||'—'} · ${s.name}`],['Shares',`Class standing ${s.csW}% · Major exam ${s.exW}% · Passing ${s.pass}%`]]);
+  y=pdfHeading(doc,y,'Summary');
+  y=pdfTable(doc,y,['Period','Class standing','Major exam','Term','Cumulative','Transmuted','Grade'],
+    R.map((r,i)=>[PNAMES[i],r.cs==null?'—':`${f2(r.cs)} / ${f2(r.cw)}`,r.ex==null?'—':`${f2(r.ex)} / ${f2(r.ew)}`,f2(r.term),f2(r.cum),f2(r.tr),i===2?gradeText(r.grade)+' (final)':gradeText(r.grade)]),
+    {columnStyles:{6:{fontStyle:'bold'}}});
+  s.periods.forEach((p,i)=>{
+    y=pdfHeading(doc,y,PNAMES[i]+(p.mode==='quick'?' (points from ERP)':''));
+    let body;
+    if(p.mode==='quick')body=[['Class standing',p.cs||'—',s.csW],['Major exam',p.ex||'—',s.exW]];
+    else body=p.items.filter(it=>it.n||it.s||it.m).map(it=>[it.n||'(unnamed)',it.s===''?'—':it.s,it.m||'—']).concat([[`${PNAMES[i]} exam · Lecture`,p.lec.s||'—',p.lec.m||'—'],[`${PNAMES[i]} exam · Laboratory`,p.lab.s||'—',p.lab.m||'—']]);
+    y=pdfTable(doc,y,['Item','Score','Out of'],body,{columnStyles:{1:{halign:'right',cellWidth:70},2:{halign:'right',cellWidth:70}}});
+  });
+  pdfFinish(doc,`${(s.code||'subject').replace(/[^\w-]+/g,'')}-grade-report.pdf`);
+}
+async function pdfGWA(){
+  await loadPdf();const all=CUR.flatMap(rowsOf);const c=gwaCalc(all);
+  const latin=document.getElementById('gLatin')?document.getElementById('gLatin').textContent:'—';
+  let {doc,y}=pdfStart('GWA Report',[['Program','BSIT Web Development (2022 curriculum)'],['Cumulative GWA',c.gwa==null?'—':c.gwa.toFixed(3)],['Units earned',`${c.earned} of 165`],['Latin honors',latin]]);
+  CUR.forEach(sem=>{
+    const rows=rowsOf(sem);const g=gwaCalc(rows);if(!rows.some(r=>S.gwa.grades[r.code]))return;
+    y=pdfHeading(doc,y,`${sem.sem.replace('Sem','Semester')}  ·  GWA ${g.gwa==null?'—':g.gwa.toFixed(3)}`);
+    y=pdfTable(doc,y,['Code','Subject','Units','Grade'],rows.map(r=>{const isE=/^ELECTIVE/.test(r.code);const ch=S.gwa.elect[r.code];const e=ch&&ELECT.find(x=>x[0]===ch);
+      return [isE&&ch?ch:r.code,e?e[1]:r.title,String(r.units),S.gwa.grades[r.code]||'—']}),{columnStyles:{2:{halign:'center',cellWidth:50},3:{halign:'center',cellWidth:60,fontStyle:'bold'}}});
+  });
+  if(!c.graded){y=pdfHeading(doc,y,'No grades entered yet')}
+  pdfFinish(doc,'gwa-report.pdf');
+}
+
 /* ---------- wiring ---------- */
 const PANELS=['mine','course','gwa','ref','acct'];
 function setTab(t){if(!PANELS.includes(t))t='mine';S.tab=t;PANELS.forEach(x=>{document.getElementById('panel-'+x).hidden=x!==t;document.getElementById('tab-'+x).setAttribute('aria-selected',x===t)});renderCrumbs();save()}
@@ -667,6 +729,8 @@ root.addEventListener('click',e=>{
   if(a==='logout'){clearTimeout(syncTimer);(async()=>{try{await pushData()}catch(x){}try{await fetch('api/logout',{method:'POST',credentials:'same-origin'})}catch(x){}location.reload()})();return}
   if(a==='export'){const blob=new Blob([JSON.stringify({app:'hau-soc-grader',version:1,data:S},null,1)],{type:'application/json'});const u=URL.createObjectURL(blob);const l=document.createElement('a');l.href=u;l.download='hau-soc-grader-backup.json';document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);return}
   if(a==='import'){document.getElementById('importFile').click();return}
+  if(a==='pdf-course'||a==='pdf-gwa'){const t=b.textContent;b.disabled=true;b.textContent='Preparing PDF…';
+    (a==='pdf-course'?pdfCourse():pdfGWA()).catch(()=>{const m=document.getElementById(a==='pdf-course'?'sendMsg':'gwaMsg');if(m)m.textContent="Couldn't create the PDF. Check your connection and try again."}).finally(()=>{b.disabled=false;b.textContent=t});return}
 });
 document.getElementById('importFile').addEventListener('change',async e=>{
   const f=e.target.files[0];if(!f)return;

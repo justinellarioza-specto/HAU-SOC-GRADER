@@ -23,7 +23,8 @@ You need Node.js 18 or newer and a MongoDB database (MongoDB Atlas free tier wor
 - Passwords are hashed with bcrypt and never stored as plain text.
 - Logins use an HTTP-only session cookie that lasts 30 days.
 - Each account's data is stored in the `users` collection of the `hau_soc_grader` database.
-- **Export backup / Import backup** on the My Subjects page saves or loads all your data as a JSON file.
+- **Export backup / Import backup** on the Account page saves or loads all your data as a JSON file.
+- **Download PDF** on the Grades and GWA pages creates a grade report (uses jsPDF, bundled in `public/vendor`).
 - Opening `public/index.html` directly, without the server, still works in offline mode and saves to the browser only.
 
 ## Features
