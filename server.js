@@ -8,7 +8,11 @@ const rateLimit = require('express-rate-limit');
 const { MongoClient } = require('mongodb');
 
 const PORT = process.env.PORT || 3000;
-const MONGODB_URI = process.env.MONGODB_URI;
+// Accept a few common names so a small typo in the Render key still works.
+const URI_KEYS = ['MONGODB_URI', 'MONGO_URI', 'MONGODB_URL', 'MONGO_URL', 'DATABASE_URL'];
+const uriKey = Object.keys(process.env).find(k => URI_KEYS.includes(k.trim().toUpperCase()) && String(process.env[k]).trim());
+const MONGODB_URI = uriKey ? String(process.env[uriKey]).trim().replace(/^["']|["']$/g, '') : '';
+if (uriKey) console.log(`Using database connection string from ${uriKey.trim()}.`);
 const DB_NAME = process.env.MONGODB_DB || 'hau_soc_grader';
 const JWT_SECRET = process.env.JWT_SECRET;
 const PROD = process.env.NODE_ENV === 'production';
@@ -16,7 +20,7 @@ const COOKIE = 'hsg_session';
 const SESSION_DAYS = 30;
 
 let dbProblem = null;
-if (!MONGODB_URI) dbProblem = 'MONGODB_URI is not set in the server environment.';
+if (!MONGODB_URI) dbProblem = 'MONGODB_URI is not set in the server environment. Add it in Render > Environment, then Save Changes and redeploy.';
 if (!JWT_SECRET || JWT_SECRET.length < 16) dbProblem = (dbProblem ? dbProblem + ' ' : '') + 'JWT_SECRET is missing or shorter than 16 characters.';
 if (dbProblem) console.error('Config problem:', dbProblem);
 
