@@ -210,6 +210,40 @@ table.eq td{padding:6px 8px;border-bottom:1px solid var(--line-soft)}
   .ccard-top{height:64px}
   .grp-row .link{margin-left:0}
 }
+/* erp class record */
+.srcbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:-6px 0 16px}
+.seg2{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.seg2 button{background:#fff;border:0;padding:8px 14px;font-size:14px;font-weight:700;color:var(--muted);cursor:pointer}
+.seg2 button+button{border-left:1px solid var(--line)}
+.seg2 button[aria-pressed="true"]{background:var(--brand);color:#fff}
+.erp-view{min-width:0;display:flex;flex-direction:column;gap:20px}
+.erp-block h2{font-size:15px;text-transform:uppercase;letter-spacing:.03em;color:var(--brand);margin:0 0 8px}
+.erp-title{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.erp-title h2{margin:0}
+table.erp-info{width:100%;border-collapse:collapse;font-size:14px;background:#fffde8}
+table.erp-info th{text-align:left;font-weight:400;padding:5px 10px;width:42%;border-bottom:2px solid #fff;vertical-align:middle}
+table.erp-info td{padding:4px 8px;border-bottom:2px solid #fff;font-style:italic}
+table.erp-info td input{width:100%;background:transparent;border:1px solid transparent;font-style:italic;font-weight:700;color:#3d3a2a;padding:4px 6px}
+table.erp-info td input:hover{border-color:#e6dfb4}
+table.erp-info td input:focus{background:#fff;border-color:var(--brand)}
+.erp-wrap{overflow-x:auto;border:1px solid #cfd2d4}
+table.erp{border-collapse:collapse;font-size:12.5px;min-width:100%}
+table.erp thead th{background:#4b4f53;color:#fff;font-size:10.5px;font-weight:700;text-transform:uppercase;text-align:center;padding:6px 8px;border:1px solid #6b6f73;line-height:1.25}
+table.erp thead th.grp{letter-spacing:.06em}
+table.erp thead th.colh{white-space:nowrap}
+table.erp th.name,table.erp td.name{min-width:120px;text-align:left}
+table.erp td{border:1px solid #cfd2d4;padding:4px;text-align:center;font-variant-numeric:tabular-nums}
+table.erp td input{width:62px;text-align:center;padding:6px 4px;font-size:14px}
+table.erp td.out{background:#f7f7f7;font-weight:700;padding:6px 10px;white-space:nowrap}
+table.erp td.g{color:var(--brand);font-size:15px}
+table.erp th input.lbl{width:96px;font-size:12px;padding:3px 5px;text-transform:none}
+table.erp th input.mxi{width:52px;font-size:12px;padding:3px 4px;text-align:center}
+table.erp th .mx{display:inline-flex;align-items:center;gap:3px;margin-left:3px;color:#fff}
+table.erp th .rm{color:#fff;font-size:15px;padding:0 4px}
+.erp-add{margin-top:5px;background:#fff;color:var(--brand);border:0;border-radius:3px;font-size:10.5px;font-weight:700;padding:3px 7px;cursor:pointer;text-transform:none}
+table.erp-sum{border-collapse:collapse;font-size:13.5px;min-width:100%}
+table.erp-sum th{background:#4b4f53;color:#fff;font-size:11px;text-transform:uppercase;padding:7px 10px;text-align:left;white-space:nowrap}
+table.erp-sum td{border-bottom:1px solid var(--line-soft);padding:7px 10px;font-variant-numeric:tabular-nums}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -277,7 +311,7 @@ const PNAMES=['Prelim','Midterm','Finals'];
 /* ---------- state ---------- */
 const KEY_BASE='hau-grade-calc-v1';
 function blankPeriod(mode){return {mode:mode||'itemized',cs:'',ex:'',items:[{n:'',s:'',m:''}],lec:{s:'',m:''},lab:{s:'',m:''},method:'raw',lecW:'50'}}
-function blankSubject(){return {id:'s'+Date.now()+Math.floor(Math.random()*1e4),code:'',name:'New subject',csW:'65',exW:'35',pass:'50',round:'trunc',periods:[blankPeriod(),blankPeriod(),blankPeriod()]}}
+function blankSubject(){return ensureErp({id:'s'+Date.now()+Math.floor(Math.random()*1e4),code:'',name:'New subject',csW:'65',exW:'35',pass:'50',round:'trunc',periods:[blankPeriod(),blankPeriod(),blankPeriod()]})}
 let KEY=KEY_BASE,S=null,API=false,USER=null,syncTimer=null;
 function readLocal(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
 function normalize(raw){
@@ -287,6 +321,7 @@ function normalize(raw){
   if(!s.v||s.v<2)s.tab='mine';s.v=3;
   s.gwa=s.gwa||{};s.gwa.grades=s.gwa.grades||{};s.gwa.elect=s.gwa.elect||{};s.gwa.nstp=!!s.gwa.nstp;
   if(!s.subjects.length){const c=CUR[(s.year-1)*2+(s.sem-1)].c[0];const x=blankSubject();x.code=c[0];x.name=c[1];s.subjects.push(x)}
+  s.subjects.forEach(ensureErp);
   if(!s.subjects.some(x=>x.id===s.cur))s.cur=s.subjects[0].id;
   return s;
 }
@@ -328,6 +363,7 @@ function period(s,p){
   return {cs,ex,term,cw,ew,W,csRaw};
 }
 function compute(s){
+  if(s.src==='erp'&&s.erp)return computeErp(s);
   const P=num(s.pass)??50;const per=s.periods.map(p=>period(s,p));const out=[];let sum=0,ok=true;
   per.forEach((r,i)=>{if(r.term==null)ok=false;else sum+=r.term;
     const cum=ok?sum/(i+1):null;const t=cum!=null?transmute(cum,P):null;
@@ -352,6 +388,102 @@ function semStatus(c,total){
   if(h)return `<span class="chip good">${partial?'on track: ':''}${h}</span>`;
   if(c.worst>2&&c.gwa<=1.75)return '<span class="chip warn">a grade below 2.00 blocks honors</span>';
   return '<span class="chip none">no honors</span>';
+}
+
+/* ---------- ERP class record ---------- */
+const EXLABEL=['Major Exam','Midterm Exam','Final Exam'];
+let ERP_EDIT=false;
+function makeErp(s){const cw=num(s.csW)??65,ew=num(s.exW)??35;
+  return {cols:[0,1,2].map(i=>{const p=s.periods&&s.periods[i];return [{l:'Class standing',m:String(cw),s:p&&p.mode==='quick'&&p.cs!=null?String(p.cs):''}]}),
+    ex:[0,1,2].map(i=>{const p=s.periods&&s.periods[i];return {m:String(ew),s:p&&p.mode==='quick'&&p.ex!=null?String(p.ex):''}})};}
+function ensureErp(s){
+  if(!s.erp||!Array.isArray(s.erp.cols)||s.erp.cols.length!==3)s.erp=makeErp(s);
+  s.erp.cols.forEach((c,i)=>{if(!c.length)s.erp.cols[i]=[{l:'Class standing',m:String(s.csW||65),s:''}]});
+  if(!s.src)s.src='erp';s.info=s.info||{};
+  if(!s.info.units){const r=CUR.flatMap(x=>x.c).find(c=>c[0]===(s.code||'').toUpperCase());s.info.units=r?String(r[2]):'3'}
+  return s;
+}
+function computeErp(s){
+  const e=s.erp,wcs=num(s.csW)??65,wex=num(s.exW)??35,P=num(s.pass)??50;let a=0,b=0,c=0,d=0;const out=[];
+  for(let k=0;k<3;k++){let has=false;
+    e.cols[k].forEach(col=>{const x=num(col.s),y=num(col.m);if(x!=null&&y>0){a+=x;b+=y;has=true}});
+    const x=num(e.ex[k].s),y=num(e.ex[k].m);if(x!=null&&y>0){c+=x;d+=y;has=true}
+    const csA=b?a/b*100:null,meA=d?c/d*100:null;
+    const cum=(has&&csA!=null&&meA!=null&&wcs+wex>0)?(wcs*csA+wex*meA)/(wcs+wex):null;
+    const tr=cum!=null?transmute(cum,P):null;
+    out.push({erp:true,has,csA,meA,cs:csA,ex:meA,term:null,cum,tr,grade:tr!=null?eqGrade(settle(tr,s.round)):null,exSum:c,exMax:d,cw:wcs,ew:wex,W:wcs+wex});
+  }
+  return out;
+}
+function erpHTML(s){
+  const e=s.erp,ed=ERP_EDIT,i=s.info;
+  const inp=(attr,val,extra)=>`<input ${attr} value="${esc(val)}"${extra||''}>`;
+  const info=[
+    ['Class code',inp('id="iClass" data-info="classCode"',i.classCode,' placeholder="e.g. 2181"')],
+    ['Subject code',inp('id="iCode" data-k="sub.code"',s.code)],
+    ['Description / Title',inp('id="iName" data-k="sub.name"',s.name)],
+    ['Offered on',inp('id="iOff" data-info="offered"',i.offered,' placeholder="e.g. 20261S"')],
+    ['Section / Time / Days / Room',inp('id="iSec" data-info="section"',i.section,' placeholder="e.g. WD-301 12:00p-03:00p, M, SJH-703"')],
+    ['Faculty',inp('id="iFac" data-info="faculty"',i.faculty)],
+    ['Number of units',inp('id="iUnits" type="number" step="any" data-info="units"',i.units)],
+    ['Passing percent average',inp('id="iPass" type="number" step="any" data-k="sub.pass"',s.pass)],
+    ['Class standing share (%)',inp('id="iCsW" type="number" step="any" data-k="sub.csW"',s.csW)],
+    ['Major examination share (%)',inp('id="iExW" type="number" step="any" data-k="sub.exW"',s.exW)],
+  ].map(([k,v])=>`<tr><th scope="row">${k}</th><td>${v}</td></tr>`).join('')+
+  `<tr><th scope="row">Weights among major exams</th><td class="muted">Prelim, Midterm and Final exams count equally (33.33% each)</td></tr>`;
+  const n=e.cols.map(c=>c.length);
+  const h1=PNAMES.map((p,k)=>`<th colspan="${n[k]+1}" class="grp">${p==='Finals'?'FINAL':p.toUpperCase()}</th>`).join('');
+  const h2=PNAMES.map((p,k)=>`<th colspan="${n[k]}">Class standing (${esc(s.csW)}%)${ed?`<br><button class="erp-add" data-act="erp-add" data-p="${k}">+ Add column</button>`:''}</th><th>Major exam (${esc(s.exW)}%)</th>`).join('');
+  const h3=e.cols.map((cols,k)=>cols.map((c,j)=>`<th class="colh">${ed?`<input class="lbl" id="ec${k}l${j}" data-erp="c.${k}.${j}.l" value="${esc(c.l)}" aria-label="Column name"><span class="mx">– <input class="mxi" id="ec${k}m${j}" type="number" step="any" data-erp="c.${k}.${j}.m" value="${esc(c.m)}" aria-label="Maximum score"></span>${cols.length>1?`<button class="rm" data-act="erp-del" data-p="${k}" data-j="${j}" aria-label="Remove column">×</button>`:''}`:`${esc(c.l||'Item')} – ${esc(c.m||'?')}`}</th>`).join('')+
+    `<th class="colh">${EXLABEL[k]} – ${ed?`<input class="mxi" id="ex${k}m" type="number" step="any" data-erp="x.${k}.m" value="${esc(e.ex[k].m)}" aria-label="Exam maximum">`:esc(e.ex[k].m||'?')}</th>`).join('');
+  const cells=e.cols.map((cols,k)=>cols.map((c,j)=>`<td><input type="number" inputmode="decimal" step="any" id="ec${k}s${j}" data-erp="c.${k}.${j}.s" value="${esc(c.s)}" placeholder="–" aria-label="${PNAMES[k]} ${esc(c.l)} score"></td>`).join('')+
+    `<td><input type="number" inputmode="decimal" step="any" id="ex${k}s" data-erp="x.${k}.s" value="${esc(e.ex[k].s)}" placeholder="–" aria-label="${EXLABEL[k]} score"></td>`).join('');
+  return `<section class="erp-block">
+      <table class="erp-info"><tbody>${info}</tbody></table>
+    </section>
+    <section class="erp-block">
+      <div class="erp-title"><h2>Raw scores details</h2><button class="btn" data-act="erp-edit">${ed?'Done editing columns':'Edit columns'}</button></div>
+      <p class="note" style="margin:0 0 8px">${ed?'Name each column and set its maximum, like "Quiz – 60". Add or remove columns to match your ERP class record.':'Type your scores in the white boxes. Use <b>Edit columns</b> to match the columns on your ERP class record.'}</p>
+      <div class="erp-wrap"><table class="erp">
+        <thead><tr><th rowspan="3" class="name">Name</th>${h1}<th rowspan="3">Class standing average</th><th rowspan="3">Major exam average</th><th rowspan="3">Computed average</th><th rowspan="3">Transmuted value</th><th rowspan="3">Current grade</th></tr>
+        <tr>${h2}</tr><tr>${h3}</tr></thead>
+        <tbody><tr><td class="name">${esc(USER?USER.name:'You')}</td>${cells}<td class="out" id="erpCs">—</td><td class="out" id="erpMe">—</td><td class="out" id="erpComp">—</td><td class="out" id="erpTr">—</td><td class="out g" id="erpGr">—</td></tr></tbody>
+      </table></div>
+    </section>
+    <section class="erp-block">
+      <h2>Summary of grades</h2>
+      <div class="erp-wrap"><table class="erp-sum"><thead><tr><th>Period</th><th>Class standing average</th><th>Major exam average</th><th>Computed average</th><th>Transmuted</th><th>Computed grade</th></tr></thead><tbody id="erpSum"></tbody></table></div>
+      <p class="note">Averages are cumulative, the same way the ERP computes them: all class standing scores so far ÷ all their maximums, and the same for major exams.</p>
+    </section>`;
+}
+function f4(n){return n==null?'—':(Math.round(n*10000)/10000).toFixed(4)}
+function updateErp(){
+  const s=sub();if(s.src!=='erp'||!document.getElementById('erpSum'))return;
+  const R=computeErp(s);let last=null;for(let k=2;k>=0;k--){if(R[k].has){last=R[k];break}}
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
+  set('erpCs',last?f4(last.csA):'—');set('erpMe',last?f4(last.meA):'—');set('erpComp',last?f4(last.cum):'—');
+  set('erpTr',last&&last.tr!=null?String(settle(last.tr,s.round)):'—');set('erpGr',last?gradeText(last.grade):'—');
+  document.getElementById('erpSum').innerHTML=R.map((r,k)=>`<tr><td>${PNAMES[k]==='Finals'?'FINAL':PNAMES[k].toUpperCase()}</td><td>${r.has?f4(r.csA):'—'}</td><td>${r.has?f4(r.meA):'—'}</td><td>${r.has?f4(r.cum):'—'}</td><td>${r.has&&r.tr!=null?settle(r.tr,s.round):'—'}</td><td><b>${r.has?gradeText(r.grade):'—'}</b></td></tr>`).join('');
+}
+function erpLadder(s){
+  const e=s.erp,R=computeErp(s),P=num(s.pass)??50,wcs=num(s.csW)??65,wex=num(s.exW)??35;
+  const fm=num(e.ex[2].m);const exPrev=[0,1].reduce((t,k)=>t+(num(e.ex[k].s)||0),0);const exMax=[0,1,2].reduce((t,k)=>t+(num(e.ex[k].m)||0),0);
+  const csA=[2,1,0].map(k=>R[k].csA).find(v=>v!=null);
+  if(csA==null)return '<p class="note" style="margin:0">Enter some class standing scores first.</p>';
+  if(!(fm>0)||!(exMax>0))return '<p class="note" style="margin:0">Set the Final Exam maximum in Edit columns.</p>';
+  const rows=SCALE.map(([min,g])=>{
+    const thr=s.round==='round'?min-0.5:min;const creq=P+(thr-75)*(100-P)/25;
+    const meReq=(creq*(wcs+wex)-wcs*csA)/wex;const x=meReq*exMax/100-exPrev;
+    const txt=x<=0?'<span class="chip good">Secured</span>':x>fm?'<span class="muted">Out of reach</span>':`${Math.ceil(x-1e-9)} / ${fm}`;
+    return `<tr class="${R[2].has&&R[2].grade===g?'cur':''}"><td>${g.toFixed(2)}</td><td>${txt}</td></tr>`}).join('');
+  return `<table class="ladder"><thead><tr><th>Grade</th><th>Final Exam score needed</th></tr></thead><tbody>${rows}</tbody></table><p class="note">Based on the class standing scores you've entered so far.</p>`;
+}
+function mergeData(d){
+  (d.subjects||[]).forEach(x=>{const code=(x.code||'').toUpperCase();const i=S.subjects.findIndex(q=>code&&(q.code||'').toUpperCase()===code);
+    if(i>=0){x.id=S.subjects[i].id;S.subjects[i]=x}else{x.id=x.id||('s'+Date.now()+Math.floor(Math.random()*1e4));S.subjects.push(x)}});
+  if(d.gwa){Object.assign(S.gwa.grades,d.gwa.grades||{});Object.assign(S.gwa.elect,d.gwa.elect||{})}
+  if(d.cur&&d.subjects&&d.subjects.length){const f=d.subjects.find(x=>x.id===d.cur)||d.subjects[0];S.cur=f.id}
+  S=normalize(S);
 }
 
 /* ---------- shared helpers ---------- */
@@ -456,10 +588,12 @@ function renderCourse(){
     <div class="page-head"><h1>Grades for ${esc(s.code||s.name)}</h1>
       <label class="f" for="subSel" style="min-width:min(100%,320px)">Subject<select id="subSel">${opts}</select></label></div>
     <p class="lead">${esc(s.name)} · Blank scores are not counted.</p>
+    <div class="srcbar"><span class="small muted">Compute my grade from</span>
+      <div class="seg2" role="group" aria-label="Grade source"><button data-act="src" data-v="erp" aria-pressed="${s.src==='erp'}">ERP class record</button><button data-act="src" data-v="items" aria-pressed="${s.src!=='erp'}">Canvas items</button></div></div>
     <div class="two">
-      <div class="gtable-wrap"><table class="gt">
+      ${s.src==='erp'?`<div class="erp-view">${erpHTML(s)}</div>`:`<div class="gtable-wrap"><table class="gt">
         <thead><tr><th>Name</th><th class="per">Period</th><th class="num">Score</th><th class="num">Out of</th><th class="x"><span hidden>Remove</span></th></tr></thead>
-        ${groups}</table></div>
+        ${groups}</table></div>`}
       <aside class="side">
         <section class="box"><h2>Grade summary</h2><div id="sumBox"></div>
           <div class="btnrow"><button class="btn primary" data-act="send">Save as my final grade</button><button class="btn" data-act="pdf-course">Download PDF</button></div>
@@ -484,7 +618,7 @@ function renderCourse(){
           </div></details>
       </aside>
     </div>`;
-  updateCourse();
+  updateCourse();updateErp();
 }
 function updateCourse(){
   const s=sub();const R=compute(s);const P=num(s.pass)??50;
@@ -497,6 +631,7 @@ function updateCourse(){
   if(sb)sb.innerHTML=`<div class="sum-terms">${R.slice(0,2).map((r,i)=>`<div class="sum-row"><span>${PNAMES[i]}</span><span><b>${gradeText(r.grade)}</b><small>${r.tr==null?'':f2(r.tr)}</small></span></div>`).join('')}</div>
     <div class="sum-final"><span>Final grade<br><small class="muted" style="font-weight:400">${R[2].tr==null?'Finish all three periods':'Transmuted '+f2(R[2].tr)}</small></span><b>${gradeText(R[2].grade)}</b></div>`;
   const L=document.getElementById('ladder');if(!L)return;const f=R[2];
+  if(s.src==='erp'){L.innerHTML=erpLadder(s);return}
   if(R[0].term==null||R[1].term==null){L.innerHTML='<p class="note" style="margin:0">Fill in Prelim and Midterm first.</p>'}
   else if(f.cs==null){L.innerHTML='<p class="note" style="margin:0">Enter your Finals scores to see what you need.</p>'}
   else{
@@ -637,6 +772,7 @@ function pdfFinish(doc,name){
 }
 async function pdfCourse(){
   await loadPdf();const s=sub();const R=compute(s);
+  if(s.src==='erp')return pdfErp(s,R);
   let {doc,y}=pdfStart('Course Grade Report',[['Subject',`${s.code||'—'} · ${s.name}`],['Shares',`Class standing ${s.csW}% · Major exam ${s.exW}% · Passing ${s.pass}%`]]);
   y=pdfHeading(doc,y,'Summary');
   y=pdfTable(doc,y,['Period','Class standing','Major exam','Term','Cumulative','Transmuted','Grade'],
@@ -651,6 +787,17 @@ async function pdfCourse(){
   });
   pdfFinish(doc,`${(s.code||'subject').replace(/[^\w-]+/g,'')}-grade-report.pdf`);
 }
+async function pdfErp(s,R){
+  const i=s.info||{};
+  let {doc,y}=pdfStart('Class Record',[['Subject',`${s.code||'—'} · ${s.name}`],['Class / Section',[i.classCode,i.section].filter(Boolean).join(' · ')||'—'],['Faculty',i.faculty||'—'],['Shares',`Class standing ${s.csW}% · Major exam ${s.exW}% · Passing ${s.pass}%`]]);
+  y=pdfHeading(doc,y,'Raw scores');
+  const body=[];s.erp.cols.forEach((cols,k)=>{cols.forEach(c=>body.push([PNAMES[k],`${c.l||'Item'}`,c.s===''?'—':c.s,c.m||'—']));body.push([PNAMES[k],EXLABEL[k],s.erp.ex[k].s===''?'—':s.erp.ex[k].s,s.erp.ex[k].m||'—'])});
+  y=pdfTable(doc,y,['Period','Item','Score','Out of'],body,{columnStyles:{2:{halign:'right',cellWidth:60},3:{halign:'right',cellWidth:60}}});
+  y=pdfHeading(doc,y,'Summary of grades');
+  y=pdfTable(doc,y,['Period','Class standing avg','Major exam avg','Computed avg','Transmuted','Grade'],R.map((r,k)=>[PNAMES[k],r.has?f4(r.csA):'—',r.has?f4(r.meA):'—',r.has?f4(r.cum):'—',r.has&&r.tr!=null?String(settle(r.tr,s.round)):'—',r.has?gradeText(r.grade):'—']),{columnStyles:{5:{fontStyle:'bold'}}});
+  pdfFinish(doc,`${(s.code||'subject').replace(/[^\w-]+/g,'')}-class-record.pdf`);
+}
+
 async function pdfGWA(){
   await loadPdf();const all=CUR.flatMap(rowsOf);const c=gwaCalc(all);
   const latin=document.getElementById('gLatin')?document.getElementById('gLatin').textContent:'—';
@@ -686,6 +833,10 @@ function onField(e){
     const it=s.periods[i].items.splice(j,1)[0];if(!s.periods[i].items.length)s.periods[i].items.push({n:'',s:'',m:''});
     const tp=s.periods[to];if(tp.items.length===1&&!tp.items[0].n&&!tp.items[0].s&&!tp.items[0].m)tp.items=[];tp.items.push(it);
     save();renderCourse();return}
+  if(el.dataset.erp){const s=sub();const q=el.dataset.erp.split('.');
+    if(q[0]==='c')s.erp.cols[+q[1]][+q[2]][q[3]]=el.value;else s.erp.ex[+q[1]][q[2]]=el.value;
+    save();updateErp();updateCourse();return}
+  if(el.dataset.info){const s=sub();s.info[el.dataset.info]=el.value;save();return}
   if(el.dataset.adv){const s=sub();s.periods.forEach(p=>p[el.dataset.adv]=el.value);save();const wl=document.getElementById('advLecWl');if(wl)wl.hidden=s.periods[2].method!=='w';updateCourse();return}
   if(el.dataset.k){setPath(el.dataset.k,el.value);save();
     if(['sub.csW','sub.exW'].includes(el.dataset.k)&&ch){renderCourse();return}
@@ -711,11 +862,15 @@ root.addEventListener('click',e=>{
     if(b.dataset.pending){const sel=document.getElementById('el-m-'+b.dataset.code);if(sel)sel.focus();document.getElementById('mineMsg').textContent='Choose which IT elective you are taking first.';return}
     openSubject(b.dataset.code,b.dataset.name);save();renderCourse();setTab('course');window.scrollTo(0,0);return}
   if(a==='use'){S.gwa.grades[b.dataset.code]=b.dataset.g;save();renderMine();renderGWA();return}
+  if(a==='src'){s.src=b.dataset.v;save();renderCourse();renderMine();return}
+  if(a==='erp-edit'){ERP_EDIT=!ERP_EDIT;renderCourse();return}
+  if(a==='erp-add'){const k=+b.dataset.p;s.erp.cols[k].push({l:'Activity',m:'',s:''});save();renderCourse();const el=document.getElementById('ec'+k+'l'+(s.erp.cols[k].length-1));if(el){el.focus();el.select()}return}
+  if(a==='erp-del'){const k=+b.dataset.p;if(s.erp.cols[k].length>1){s.erp.cols[k].splice(+b.dataset.j,1);save();renderCourse()}return}
   if(a==='mode'){s.periods[+b.dataset.i].mode=b.dataset.m;save();renderCourse();return}
   if(a==='add-item'){const i=+b.dataset.i;const p=s.periods[i];p.items.push({n:'',s:'',m:''});save();renderCourse();const el=document.getElementById('i'+i+'n'+(p.items.length-1));if(el)el.focus();return}
   if(a==='del-item'){const p=s.periods[+b.dataset.i];p.items.splice(+b.dataset.j,1);if(!p.items.length)p.items.push({n:'',s:'',m:''});save();renderCourse();return}
   if(a==='add-sub'){const n=blankSubject();n.name='Custom subject';S.subjects.push(n);S.cur=n.id;save();renderCourse();renderCrumbs();const c=document.getElementById('sCode');if(c){c.closest('details').open=true;c.focus()}return}
-  if(a==='del-sub'){const t=arm(b,'Click again to clear all scores',delArm);if(t){delArm=t;return}delArm=0;s.periods=[blankPeriod(),blankPeriod(),blankPeriod()];save();renderCourse();return}
+  if(a==='del-sub'){const t=arm(b,'Click again to clear all scores',delArm);if(t){delArm=t;return}delArm=0;s.periods=[blankPeriod(),blankPeriod(),blankPeriod()];s.erp={cols:s.erp.cols.map(c=>c.map(x=>({l:x.l,m:x.m,s:''}))),ex:s.erp.ex.map(x=>({m:x.m,s:''}))};save();renderCourse();return}
   if(a==='clear-gwa'){const t=arm(b,'Click again to clear',clrArm);if(t){clrArm=t;return}clrArm=0;S.gwa.grades={};save();renderGWA();renderMine();return}
   if(a==='send'){
     const g=compute(s)[2].grade;const m=document.getElementById('sendMsg');
@@ -735,7 +890,8 @@ root.addEventListener('click',e=>{
 document.getElementById('importFile').addEventListener('change',async e=>{
   const f=e.target.files[0];if(!f)return;
   try{const j=JSON.parse(await f.text());const d=j&&j.data?j.data:j;if(!d||!Array.isArray(d.subjects))throw 0;
-    S=normalize(d);save();renderAll();setTab('acct');
+    if(j&&j.merge){mergeData(d)}else S=normalize(d);
+    save();renderAll();setTab(j&&j.merge?'course':'acct');
     document.getElementById('backupMsg').textContent=`Imported ${S.subjects.length} subject${S.subjects.length===1?'':'s'}.`}
   catch(x){const m=document.getElementById('backupMsg');if(m)m.textContent="That file isn't a HAU SOC Grader backup."}
   e.target.value='';

@@ -43,6 +43,12 @@ You need Node.js 18 or newer and a MongoDB database (MongoDB Atlas free tier wor
 **Grading rules**
 - The table of grade equivalents, honors requirements, and attendance and retention rules from the College Student Handbook 2025–2026.
 
+## ERP class record
+
+Every subject has an **ERP class record** view that mirrors the HAU ERP "View scores on all performance items" page: class info, raw score columns per period (for example Quiz – 60, Activity – 50), major exams, and a summary of grades. Columns can be renamed, added or removed with **Edit columns**, and the class standing / major exam shares can differ per subject (65/35, 70/30, and so on).
+
+The ERP pools scores: class standing average = all class standing scores so far ÷ all their maximums, and the same for major exams. The calculator does the same.
+
 ## How grades are computed
 
 ```
