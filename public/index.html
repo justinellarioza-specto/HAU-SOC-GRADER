@@ -224,6 +224,7 @@ table.erp-info{width:100%;border-collapse:collapse;font-size:14px;background:#ff
 table.erp-info th{text-align:left;font-weight:400;padding:5px 10px;width:42%;border-bottom:2px solid #fff;vertical-align:middle}
 table.erp-info td{padding:4px 8px;border-bottom:2px solid #fff;font-style:italic}
 table.erp-info td input{width:100%;background:transparent;border:1px solid transparent;font-style:italic;font-weight:700;color:#3d3a2a;padding:4px 6px}
+table.erp-info .stype{font-weight:700;color:#3d3a2a;padding-left:6px}
 table.erp-info td input:hover{border-color:#e6dfb4}
 table.erp-info td input:focus{background:#fff;border-color:var(--brand)}
 .erp-wrap{overflow-x:auto;border:1px solid #cfd2d4}
@@ -320,7 +321,7 @@ function normalize(raw){
   s.year=s.year||3;s.sem=s.sem||1;if(!['mine','course','gwa','ref','acct'].includes(s.tab))s.tab='mine';
   if(!s.v||s.v<2)s.tab='mine';s.v=3;
   s.gwa=s.gwa||{};s.gwa.grades=s.gwa.grades||{};s.gwa.elect=s.gwa.elect||{};s.gwa.nstp=!!s.gwa.nstp;
-  if(!s.subjects.length){const c=CUR[(s.year-1)*2+(s.sem-1)].c[0];const x=blankSubject();x.code=c[0];x.name=c[1];s.subjects.push(x)}
+  if(!s.subjects.length){const c=CUR[(s.year-1)*2+(s.sem-1)].c[0];const x=blankSubject();x.code=c[0];x.name=c[1];applyDefaultShares(x);s.subjects.push(x)}
   s.subjects.forEach(ensureErp);
   if(!s.subjects.some(x=>x.id===s.cur))s.cur=s.subjects[0].id;
   return s;
@@ -396,7 +397,16 @@ let ERP_EDIT=false;
 function makeErp(s){const cw=num(s.csW)??65,ew=num(s.exW)??35;
   return {cols:[0,1,2].map(i=>{const p=s.periods&&s.periods[i];return [{l:'Class standing',m:String(cw),s:p&&p.mode==='quick'&&p.cs!=null?String(p.cs):''}]}),
     ex:[0,1,2].map(i=>{const p=s.periods&&s.periods[i];return {m:String(ew),s:p&&p.mode==='quick'&&p.ex!=null?String(p.ex):''}})};}
+function defaultShares(code){return /^6/.test(String(code||'').trim().toUpperCase())?['65','35']:['70','30']}
+function subjectType(code){return /^6/.test(String(code||'').trim().toUpperCase())?'Professional (major)':'General education'}
+function hasScores(s){
+  const e=s.erp;if(e&&(e.cols.some(c=>c.some(x=>x.s!==''&&x.s!=null))||e.ex.some(x=>x.s!==''&&x.s!=null)))return true;
+  return (s.periods||[]).some(p=>p.cs||p.ex||p.items.some(i=>i.s!==''&&i.s!=null)||p.lec.s||p.lab.s);
+}
+function applyDefaultShares(s){const [c,e]=defaultShares(s.code);s.csW=c;s.exW=e;s.erp=makeErp(s);s.sharesSet=true}
 function ensureErp(s){
+  if(!s.sharesSet&&s.code&&!hasScores(s)&&s.csW==='65'&&s.exW==='35'&&defaultShares(s.code)[0]!=='65'){applyDefaultShares(s)}
+  s.sharesSet=true;
   if(!s.erp||!Array.isArray(s.erp.cols)||s.erp.cols.length!==3)s.erp=makeErp(s);
   s.erp.cols.forEach((c,i)=>{if(!c.length)s.erp.cols[i]=[{l:'Class standing',m:String(s.csW||65),s:''}]});
   if(!s.src)s.src='erp';s.info=s.info||{};
@@ -426,6 +436,7 @@ function erpHTML(s){
     ['Section / Time / Days / Room',inp('id="iSec" data-info="section"',i.section,' placeholder="e.g. WD-301 12:00p-03:00p, M, SJH-703"')],
     ['Faculty',inp('id="iFac" data-info="faculty"',i.faculty)],
     ['Number of units',inp('id="iUnits" type="number" step="any" data-info="units"',i.units)],
+    ['Subject type',`<span class="stype">${subjectType(s.code)}</span> <span class="muted small">· usual split ${defaultShares(s.code).join('/')}</span>`],
     ['Passing percent average',inp('id="iPass" type="number" step="any" data-k="sub.pass"',s.pass)],
     ['Class standing share (%)',inp('id="iCsW" type="number" step="any" data-k="sub.csW"',s.csW)],
     ['Major examination share (%)',inp('id="iExW" type="number" step="any" data-k="sub.exW"',s.exW)],
@@ -500,7 +511,7 @@ function semSubjects(){
 function findSubject(code){return S.subjects.find(q=>(q.code||'').toUpperCase()===code)}
 function openSubject(code,name){
   let x=findSubject(code);
-  if(!x){x=blankSubject();x.code=code;x.name=name;S.subjects.push(x)}
+  if(!x){x=blankSubject();x.code=code;x.name=name;applyDefaultShares(x);ensureErp(x);S.subjects.push(x)}
   S.cur=x.id;return x;
 }
 function calcGradeFor(code){const x=findSubject(code);if(!x)return null;return compute(x)[2].grade}
