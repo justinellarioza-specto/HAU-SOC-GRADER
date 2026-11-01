@@ -259,6 +259,7 @@ table.erp-sum td{border-bottom:1px solid var(--line-soft);padding:7px 10px;font-
       </div>
       <form id="authForm" data-mode="login" novalidate>
         <label class="f signup-only" for="aName" hidden>Full name<input id="aName" name="aName" autocomplete="name" maxlength="80" placeholder="Juan Dela Cruz"></label>
+        <label class="f signup-only" for="aProg" hidden>Program<select id="aProg" name="aProg"></select></label>
         <label class="f" for="aNo">Student number<input id="aNo" name="aNo" autocomplete="username" maxlength="20" required placeholder="e.g. 20231234"></label>
         <label class="f" for="aPass">Password<input id="aPass" name="aPass" type="password" autocomplete="current-password" minlength="8" maxlength="128" required></label>
         <label class="f signup-only" for="aPass2" hidden>Confirm password<input id="aPass2" name="aPass2" type="password" autocomplete="new-password" minlength="8" maxlength="128"></label>
@@ -295,7 +296,7 @@ table.erp-sum td{border-bottom:1px solid var(--line-soft);padding:7px 10px;font-
 (function(){
 /* ---------- data from the handbook & curriculum ---------- */
 const SCALE=[[97,1.00,'A','Outstanding'],[94,1.25,'A-','Excellent'],[91,1.50,'B+','Superior'],[88,1.75,'B','Very Good'],[85,2.00,'B-','Good'],[82,2.25,'C+','Satisfactory'],[79,2.50,'C','Fairly Satisfactory'],[76,2.75,'C-','Fair'],[75,3.00,'D','Passed']];
-const CUR=[
+const PROGRAMS={'BSIT-WD':{name:'BSIT – Web Development (2022)',short:'BSIT Web Development',total:165,terms:[
  {sem:'1st Year · 1st Sem',c:[['2MATHMWORLD','Mathematics in the Modern World',3],['4FYE1','Big History 1: Big Bang to the Future',3],['6CFUN','Computing Fundamentals',3],['6LOGPROG','Logic Formulation and Introductory Programming',3],['7TPE1','PATHFit 1: Movement Competency Training',2],['9STS','Science, Technology and Society',3],['THEOLOGY101','Theological Foundations',3],['CWTS1','Civic Welfare Training Services 1',3,1]]},
  {sem:'1st Year · 2nd Sem',c:[['1PURCOMM','Purposive Communication',3],['2ANAGEOM','Analytic Geometry',3],['4FYE2','Big History 2',3],['6DMATHS','Discrete Mathematics and Structures',3],['6PHCI','Principles of Human Computer Interaction',3],['6PROGSDATS','Programming with Structured Data Types',3],['7TPE2','PATHFit 2: Exercise-based Fitness',2],['THEOLOGY102','Special Issues in Catholic Theology',3],['CWTS2','Civic Welfare Training Services 2',3,1]]},
  {sem:'2nd Year · 1st Sem',c:[['2CALC-IT','Calculus',3],['4ETHICS','Ethics',3],['6COMETHICS','Ethics for Computing Professionals',3],['6DSAL','Data Structures and Algorithms',3],['6INTROWEB','Introduction to Web Programming',3],['6OOP','Object-Oriented Programming',3],['6OSAPP','Operating Systems Application',3],['7TPE3','PATHFit 3',2]]},
@@ -304,8 +305,10 @@ const CUR=[
  {sem:'3rd Year · 2nd Sem',c:[['1TWRITE-ITE','Technical Writing of IT Education',3],['4UNDERSELF','Understanding the Self',3],['6ADET','Applications Development and Emerging Technologies',3],['6AWEB','Advanced Dynamic Web Applications',3],['6CLOUDCOM','Cloud Computing',3],['6WSEA','Web Search Engine Optimization and Analytics',3],['ELECTIVE2','IT Elective 2',3]]},
  {sem:'4th Year · 1st Sem',c:[['6WCAP1','Web Development Capstone 1',3],['6OJT','On-the-Job Training (486 hours)',6]]},
  {sem:'4th Year · 2nd Sem',c:[['4ARTAPP','Art Appreciation',3],['4CONWORLD','The Contemporary World',3],['4RIZAL','Life and Works of Rizal',3],['6WCAP2','Web Development Capstone 2',3],['ELECTIVE3','IT Elective 3',3],['ELECTIVE4','IT Elective 4',3]]}
-];
-const ELECT=[['6SRWE','Switching, Routing, and Wireless Essentials'],['6ENSA','Enterprise Networking, Security, and Automation'],['6DEVOPS','Development and Operation'],['6BLOCKTECH','Blockchain Technology'],['6ITPROGMAN','Project Management'],['6SHWINT','Software and Hardware Interfacing'],['6WDFOL','Web Development Portfolio'],['6NSEC','Network Security Implementation'],['6IMSOFTENG','Implementation and Management of Software Engineering'],['6UHCID','Usability, HCI and User Interaction Design'],['6ADSE','Audio Design and Sound Engineering']];
+],elect:[['6SRWE','Switching, Routing, and Wireless Essentials'],['6ENSA','Enterprise Networking, Security, and Automation'],['6DEVOPS','Development and Operation'],['6BLOCKTECH','Blockchain Technology'],['6ITPROGMAN','Project Management'],['6SHWINT','Software and Hardware Interfacing'],['6WDFOL','Web Development Portfolio'],['6NSEC','Network Security Implementation'],['6IMSOFTENG','Implementation and Management of Software Engineering'],['6UHCID','Usability, HCI and User Interaction Design'],['6ADSE','Audio Design and Sound Engineering']],electLabel:'IT Elective'}};
+Object.assign(PROGRAMS,{"BSIT-NET": {"name": "BSIT – Network Administration (2022)", "short": "BSIT Network Administration", "total": 162, "terms": [{"sem": "1st Year · 1st Sem", "c": [["2MATHMWORLD", "Mathematics in the Modern World", 3], ["4FYE1", "Big History 1: Big Bang to the Future", 3], ["6CFUN", "Computing Fundamentals", 3], ["6LOGPROG", "Logic Formulation and Introductory Programming", 3], ["7TPE1", "PATHFit 1: Movement Competency Training", 2], ["9STS", "Science, Technology and Society", 3], ["THEOLOGY101", "Theological Foundations", 3], ["CWTS1", "Civic Welfare Training Services 1", 3, 1]]}, {"sem": "1st Year · 2nd Sem", "c": [["1PURCOMM", "Purposive Communication", 3], ["2ANAGEOM", "Analytic Geometry", 3], ["4FYE2", "Big History 2: Looking through the Lens of Big History", 3], ["6DMATHS", "Discrete Mathematics and Structures", 3], ["6PHCI", "Principles of Human Computer Interaction", 3], ["6PROGSDATS", "Programming with Structured Data Types", 3], ["7TPE2", "PATHFit 2: Exercise-based Fitness Activities", 2], ["THEOLOGY102", "Special Issues in Catholic Theology", 3], ["CWTS2", "Civic Welfare Training Services 2", 3, 1]]}, {"sem": "2nd Year · 1st Sem", "c": [["2CALC-IT", "Calculus", 3], ["4CONWORLD", "The Contemporary World", 3], ["4ETHICS", "Ethics", 3], ["6DSAL", "Data Structures and Algorithms", 3], ["6INTROWEB", "Basic Programming in Web", 3], ["6OOP", "Object-Oriented Programming", 3], ["6OSAPP", "Operating Systems Application", 3], ["7TPE3", "PATHFit 3", 2]]}, {"sem": "2nd Year · 2nd Sem", "c": [["2PROBSTAT", "Probability and Statistics", 3], ["4READPHILHIS", "Readings in Philippine History", 3], ["6COMETHICS", "Ethics for Computing Professionals", 3], ["6IMAN", "Information Management", 3], ["6ITN", "Introduction to Networks", 3], ["6SERVERTECH", "Server Technologies", 3], ["7TPE4", "PATHFit 4", 2], ["THEOLOGY103", "Christian Spirituality in the Contemporary World", 3]]}, {"sem": "3rd Year · 1st Sem", "c": [["2LINALGEB", "Linear Algebra", 3], ["6IASEC", "Information Assurance and Security", 3], ["6ITPROGMAN", "Project Management", 3], ["6SERVERMAN", "Advance Server Management", 3], ["6SRWE", "Switching, Routing, and Wireless Essentials", 3], ["9CALBPHYS", "Calculus-based Physics", 3], ["9CALBPHYSL", "Calculus-based Physics Laboratory", 1], ["ELECTIVE1", "IT Elective 1", 3]]}, {"sem": "3rd Year · 2nd Sem", "c": [["1TWRITE-ITE", "Technical Writing of Information Technology Education", 3], ["4UNDERSELF", "Understanding the Self", 3], ["6ADET", "Applications Development and Emerging Technologies", 3], ["6CLOUDCOM", "Cloud Computing", 3], ["6ENSA", "Enterprise Networking, Security, and Automation", 3], ["ELECTIVE2", "IT Elective 2", 3], ["ELECTIVE3", "IT Elective 3", 3]]}, {"sem": "4th Year · 1st Sem", "c": [["4ARTAPP", "Art Appreciation", 3], ["4RIZAL", "Life and Works of Rizal", 3], ["6NSEC", "Network Security Implementation", 3], ["6NCAP1", "Network Independent Study 1", 3], ["ELECTIVE4", "IT Elective 4", 3]]}, {"sem": "4th Year · 2nd Sem", "c": [["6OJT", "On-the-Job Training (486 hours)", 6], ["6NCAP2", "Network Independent Study 2", 3]]}], "elect": [["6ADDBASE", "Advanced Database Systems"], ["6DEVOPS", "Development and Operation"], ["6BLOCKTECH", "Blockchain Technology"], ["6EARCH", "Enterprise Architecture"], ["6IMSOFTENG", "Implementation and Management of Software Engineering"], ["6SHWINT", "Software and Hardware Interfacing"], ["6SSAD", "Systems Analysis and Design"], ["6WSYS", "Web Systems"]], "electLabel": "IT Elective"}, "BSCS-AI": {"name": "BSCS – Artificial Intelligence (CY 2026–2027)", "short": "BSCS Artificial Intelligence", "total": 160, "terms": [{"sem": "1st Year · 1st Sem", "c": [["2MATHMWORLD", "Mathematics in the Modern World", 3], ["4FYE1", "Big History1: Big Bang to the Future", 3], ["9STS", "Science, Technology and Society", 3], ["6CFUN", "Computing Fundamentals", 3], ["6LOGPROG", "Logic Formulation and Introductory Programming", 3], ["6DMATHS", "Discrete Mathematics and Structures", 3], ["THEOLOGY101", "Theological Foundations", 3], ["7TPE1", "PATHFit 1: Movement Competency Training", 2], ["CWTS1", "Civic Welfare Training Services", 3, 1]]}, {"sem": "1st Year · 2nd Sem", "c": [["1PURCOMM", "Purposive Communication", 3], ["4FYE2", "Big History2: Looking through the Lens of Big History", 3], ["6ADMATHS", "Advanced Discrete Mathematics and Structures", 3], ["6PROGSDATS", "Programming with Structured Data Types", 3], ["6PHCI", "Principles of Human Computer Interaction", 3], ["6WBCS", "Web Programming for CS", 1], ["THEOLOGY102", "Special Issues in Catholic Theology", 3], ["7TPE2", "PATHFit 2: Exercise-based Fitness Activities", 2], ["CWTS2", "Civic Welfare Training Services 2", 3, 1]]}, {"sem": "2nd Year · 1st Sem", "c": [["2LINALGEB", "Linear Algebra", 3], ["2PROBSTAT", "Probability and Statistics", 3], ["4READPHILHIS", "Readings in Philippine History", 3], ["6DIPROGLANG", "Design and Implementation of Programming Languages", 3], ["6OOP", "Object Oriented Programming", 3], ["6DSAL", "Data Structures and Algorithms", 3], ["6COARC", "Computer Architecture and Organization", 3], ["6AIFUN", "Artifical Intelligence Fundamentals", 3], ["7TPE3", "PATHFit 3", 2]]}, {"sem": "2nd Year · 2nd Sem", "c": [["2DIFFCALC", "Differential Calculus", 3], ["4UNDERSELF", "Understanding the Self", 3], ["6ADA", "Analysis and Design of Algorithms", 3], ["6ITN", "Introduction to Networks", 3], ["6DNCS", "Data Analytics for Computer Science", 1], ["6IMAN", "Information Management", 3], ["6SSAD", "Systems Analysis and Design", 3], ["THEOLOGY103", "Christian Spirituality in the Contemporary World", 3], ["7TPE4", "PATHFit 4", 2]]}, {"sem": "3rd Year · 1st Sem", "c": [["1TWRITE-ITE", "Technical Writing for Information Technology Education", 3], ["2INTCALC", "Integral Calculus", 3], ["4ETHICS", "Ethics", 3], ["6ADET", "Applications Development and Emerging Technologies", 3], ["6ATFL", "Automata Theory and Formal Languages", 3], ["6IMS", "Introduction to Modelling and Simulation", 1], ["6OPSYSFUN", "Operating Systems Fundamentals", 3], ["6IMSOFTENG", "Implementation and Management of Software Engineering", 3]]}, {"sem": "3rd Year · 2nd Sem", "c": [["6COMETHICS", "Ethics for Computing Professionals", 3], ["9CBPHYSICS", "Calculus-based Physics", 3], ["9CBPHYSICSL", "Calculus-based Physics Laboratory", 1], ["6CISTUDY1", "CS Independent Study 1", 3], ["6DLF", "Deep Learning Fundamentals", 1], ["ELECTIVE1", "CS Elective 1", 3], ["ELECTIVE2", "CS Elective 2", 3]]}, {"sem": "4th Year · 1st Sem", "c": [["4RIZAL", "Life and Works of Rizal", 3], ["4ARTAPP", "Art Appreciation", 3], ["4CONWORLD", "The Contemporary World", 3], ["6CISTUDY2", "CS Independent Study 2", 3], ["ELECTIVE3", "CS Elective 3", 3]]}, {"sem": "4th Year · 2nd Sem", "c": [["6OJT", "On-the-Job Training (486 hours)", 6]]}], "elect": [["6ASE", "Audio Analysis and Sound Engineering"], ["6BLOCKTECH", "Blockchain Technology"], ["6CLOUDC", "Cloud Computing"], ["6FUNQC", "Fundamentals of Quantum Computing"], ["6GRAVICOM", "Graphics and Visual Computing"], ["6INSY", "Intelligent Systems"], ["6IOT", "Internet of Things"], ["6ITPROGMAN", "Project Management"], ["6LLM", "Large Language Model"], ["6NLP", "Natural Language Processing"], ["6PDCOM", "Parallel and Distributed Computing"], ["6SRWE", "Switching, Routing, and Wireless Essentials"]], "electLabel": "CS Elective"}, "BSEMC-DA": {"name": "BSEMC – Digital Animation (2022)", "short": "BSEMC Digital Animation", "total": 162, "terms": [{"sem": "1st Year · 1st Sem", "c": [["2MATHMWORLD", "Mathematics in the Modern World", 3], ["9STS", "Science, Technology and Society", 3], ["6LOGPROG", "Logic Formulation and Introductory Programming", 3], ["6EMC", "Introduction to Entertainment and Multimedia Computing", 3], ["4FYE1", "Big History 1: Big Bang to the Future", 3], ["THEOLOGY101", "Theological Foundations", 3], ["7TPE1", "PATHFit 1: Movement Competency Training", 2], ["CWTS1", "Civic Welfare Training Services 1", 3, 1]]}, {"sem": "1st Year · 2nd Sem", "c": [["1PURCOMM", "Purposive Communication", 3], ["4ARTAPP", "Art Appreciation", 3], ["6DRAW1", "Freehand and Digital Drawing", 3], ["6PROGSDATS", "Programming with Structured Data Types", 3], ["6DESKPUB", "Desktop Publishing", 1], ["4FYE2", "Big History 2: Looking through the Lens of Big History", 3], ["THEOLOGY102", "Special Issues in Catholic Theology", 3], ["7TPE2", "PATHFit 2: Exercise-based Fitness Activities", 2], ["CWTS2", "Civic Welfare Training Services 2", 3, 1]]}, {"sem": "2nd Year · 1st Sem", "c": [["4CONWORLD", "The Contemporary World", 3], ["9PHYSICS-A", "Physics for Animation", 3], ["6IGAME", "Introduction to Game Design and Development", 3], ["6DSAL", "Data Structures and Algorithms", 3], ["6DRAW2", "Principles of 2D Animation", 3], ["6UHCID", "Usability, HCI and User Interaction Design", 3], ["6COMETHICS", "Ethics for Computing Professionals", 3], ["7TPE3", "PATHFit 3", 2]]}, {"sem": "2nd Year · 2nd Sem", "c": [["4READPHILHIS", "Readings in Philippine History", 3], ["63DANIMP", "Principles of 3D Animation", 3], ["6ADSE", "Audio Design and Sound Engineering", 3], ["6CWRITED", "Creative Writing and Story Board Design", 3], ["6IMAN", "Information Management", 3], ["6ADET", "Applications Development and Emerging Technologies", 3], ["THEOLOGY103", "Christian Spirituality in the Contemporary World", 3], ["7TPE4", "PATHFit 4", 2]]}, {"sem": "3rd Year · 1st Sem", "c": [["4UNDERSELF", "Understanding the Self", 3], ["6COMGRAP", "Computer Graphics Programming", 3], ["6SOPMAN", "Sound Production Management", 3], ["6IVPROL", "Image and Video Processing", 3], ["6DESPRO", "Design and Production Process", 3], ["6MODRIG", "Modeling and Rigging", 3], ["6ADVAN2D", "Advanced 2D Animation", 3], ["ELECTIVE1", "EMC Elective 1", 3]]}, {"sem": "3rd Year · 2nd Sem", "c": [["1TWRITE-ITE", "Technical Writing for Information Technology Education", 3], ["4ETHICS", "Ethics", 3], ["6COMREN", "Compositing and Rendering", 3], ["6ADV3D", "Advanced 3D Animation (Scripting for 3D)", 3], ["6LIGHTX", "Lighting and Effects", 3], ["6TMAP", "Texture and Mapping", 3], ["ELECTIVE2", "EMC Elective 2", 3]]}, {"sem": "4th Year · 1st Sem", "c": [["6ANIMCAP1", "Capstone Project 1 for Animation", 3], ["6OJT-EMC", "Internship/OJT (486 hours)", 9]]}, {"sem": "4th Year · 2nd Sem", "c": [["4RIZAL", "Life and Works of Rizal", 3], ["6ANIMPROD", "Animation Design and Production", 3], ["6ANIMCAP2", "Capstone Project 2 for Animation", 3], ["ELECTIVE3", "EMC Elective 3", 3]]}], "elect": [["6ANIMPORTF", "Digital Animation Portfolio"], ["6ENCREA", "Entrepreneurship for the Creative"], ["6FDIRECT", "Film Directing"], ["6PHOTOGRAPH", "Photography"], ["6OOP", "Object-Oriented Programming"], ["6STOPL", "Stop Motion Animation"], ["6SSAD", "Systems Analysis and Design"], ["6IMSOFTENG", "Implementation and Management of Software Engineering"]], "electLabel": "EMC Elective"}, "BSCYBER": {"name": "BS Cybersecurity (2022, amended 2024)", "short": "BS Cybersecurity", "total": 160, "terms": [{"sem": "1st Year · 1st Sem", "c": [["2MATHMWORLD", "Mathematics in the Modern World", 3], ["9STS", "Science, Technology and Society", 3], ["6LOGPROG", "Logic Formulation and Introductory Programming", 3], ["6CFUN", "Computing Fundamentals", 3], ["4FYE1", "Big History 1: Big Bang to the Future", 3], ["THEOLOGY101", "Theological Foundations", 3], ["7TPE1", "PATHFit 1: Movement Competency Training", 2], ["CWTS1", "Civic Welfare Training Services 1", 3, 1]]}, {"sem": "1st Year · 2nd Sem", "c": [["1PURCOMM", "Purposive Communication", 3], ["2ANAGEOM", "Analytic Geometry", 3], ["6DMATHS", "Discrete Mathematics and Structures", 3], ["6PROGSDATS", "Programming with Structured Data Types", 3], ["6PHCI", "Principles of Human Computer Interaction", 3], ["4FYE2", "Big History 2: Looking through the Lens of Big History", 3], ["THEOLOGY102", "Special Issues in Catholic Theology", 3], ["7TPE2", "PATHFit 2: Exercise-based Fitness Activities", 2], ["CWTS2", "Civic Welfare Training Services 2", 3, 1]]}, {"sem": "2nd Year · 1st Sem", "c": [["4ETHICS", "Ethics", 3], ["4CONWORLD", "The Contemporary World", 3], ["2CALC-IT", "Calculus", 3], ["6ICYBER", "Introduction to Cyber Security & Emerging Technology & Threats to Cyber Security", 3], ["6DSAL", "Data Structures and Algorithms", 3], ["6OOP", "Object-Oriented Programming", 3], ["6INTROWEB", "Basic Programming in Web", 3], ["6OPSYSFUN", "Operating Systems Fundamentals", 3], ["7TPE3", "PATHFit 3", 2]]}, {"sem": "2nd Year · 2nd Sem", "c": [["4READPHILHIS", "Readings in Philippine History", 3], ["2PROBSTAT", "Probability and Statistics", 3], ["6ITN", "Introduction to Networks", 3], ["6DASALGO", "Design and Analysis of Algorithms", 3], ["6IMAN", "Information Management", 3], ["6DWEB", "Dynamic Web Applications and Development Tools", 3], ["THEOLOGY103", "Christian Spirituality in the Contemporary World", 3], ["7TPE4", "PATHFit 4", 2]]}, {"sem": "3rd Year · 1st Sem", "c": [["4ARTAPP", "Art Appreciation", 3], ["4RIZAL", "Life and Works of Rizal", 3], ["2LINALGEB", "Linear Algebra", 3], ["6INFOR", "Introduction to Network Forensics", 3], ["6IOT", "Internet of Things", 1], ["6SERVERSEC1", "Server Administration and Security 1", 1], ["6CLOUDSEC", "Cloud Computing for Cybersecurity", 3], ["6SRWE", "Switching, Routing, and Wireless Essentials", 3]]}, {"sem": "3rd Year · 2nd Sem", "c": [["1TWRITE-ITE", "Technical Writing for Information Technology Education", 3], ["4UNDERSELF", "Understanding the Self", 3], ["6ENSA", "Enterprise Networking, Security, and Automation", 3], ["6SHSEC", "Software and Hardware Security", 1], ["6SERVERSEC2", "Server Administration and Security 2", 1], ["9CALBPHYS", "Calculus-based Physics", 3], ["9CALBPHYSL", "Calculus-based Physics Laboratory", 1]]}, {"sem": "4th Year · 1st Sem", "c": [["6CYBERPOLICY", "Cybersecurity and Privacy: Law, Policies, and Compliance", 3], ["6ACLOUD", "Advance Cloud Computing for Cybersecurity", 3], ["6CRYPTOGRAPHY", "Applied Cryptography", 3], ["6NSEC", "Network Security Implementation", 3], ["6ETHACKING", "Ethical Hacking and Countermeasures", 3], ["6CYBERCAP1", "Capstone for Cybersecurity 1", 3]]}, {"sem": "4th Year · 2nd Sem", "c": [["6OJT", "On-the-Job Training (486 hours)", 6], ["6CYBERCAP2", "Capstone for Cybersecurity 2", 3]]}], "elect": [], "electLabel": "Elective"}, "BSCYBER-PSM": {"name": "BS Cybersecurity + PSM in Cybersecurity (2022, amended 2024)", "short": "BS Cybersecurity + PSM", "total": 175, "terms": [{"sem": "1st Year · 1st Sem", "c": [["2MATHMWORLD", "Mathematics in the Modern World", 3], ["9STS", "Science, Technology and Society", 3], ["6LOGPROG", "Logic Formulation and Introductory Programming", 3], ["6CFUN", "Computing Fundamentals", 3], ["4FYE1", "Big History 1: Big Bang to the Future", 3], ["THEOLOGY101", "Theological Foundations", 3], ["7TPE1", "PATHFit 1: Movement Competency Training", 2], ["CWTS1", "Civic Welfare Training Services 1", 3, 1]]}, {"sem": "1st Year · 2nd Sem", "c": [["1PURCOMM", "Purposive Communication", 3], ["2ANAGEOM", "Analytic Geometry", 3], ["6DMATHS", "Discrete Mathematics and Structures", 3], ["6PROGSDATS", "Programming with Structured Data Types", 3], ["6PHCI", "Principles of Human Computer Interaction", 3], ["4FYE2", "Big History 2: Looking through the Lens of Big History", 3], ["THEOLOGY102", "Special Issues in Catholic Theology", 3], ["7TPE2", "PATHFit 2: Exercise-based Fitness Activities", 2], ["CWTS2", "Civic Welfare Training Services 2", 3, 1]]}, {"sem": "2nd Year · 1st Sem", "c": [["4ETHICS", "Ethics", 3], ["4CONWORLD", "The Contemporary World", 3], ["2CALC-IT", "Calculus", 3], ["6ICYBER", "Introduction to Cyber Security & Emerging Technology & Threats to Cyber Security", 3], ["6DSAL", "Data Structures and Algorithms", 3], ["6OOP", "Object-Oriented Programming", 3], ["6INTROWEB", "Basic Programming in Web", 3], ["6OPSYSFUN", "Operating Systems Fundamentals", 3], ["7TPE3", "PATHFit 3", 2]]}, {"sem": "2nd Year · 2nd Sem", "c": [["4READPHILHIS", "Readings in Philippine History", 3], ["2PROBSTAT", "Probability and Statistics", 3], ["6ITN", "Introduction to Networks", 3], ["6DASALGO", "Design and Analysis of Algorithms", 3], ["6IMAN", "Information Management", 3], ["6DWEB", "Dynamic Web Applications and Development Tools", 3], ["THEOLOGY103", "Christian Spirituality in the Contemporary World", 3], ["7TPE4", "PATHFit 4", 2]]}, {"sem": "3rd Year · 1st Sem", "c": [["4ARTAPP", "Art Appreciation", 3], ["4RIZAL", "Life and Works of Rizal", 3], ["2LINALGEB", "Linear Algebra", 3], ["6INFOR", "Introduction to Network Forensics", 3], ["6IOT", "Internet of Things", 1], ["6SERVERSEC1", "Server Administration and Security 1", 1], ["6CLOUDSEC", "Cloud Computing for Cybersecurity", 3], ["6SRWE", "Switching, Routing, and Wireless Essentials", 3]]}, {"sem": "3rd Year · 2nd Sem", "c": [["1TWRITE-ITE", "Technical Writing for Information Technology Education", 3], ["4UNDERSELF", "Understanding the Self", 3], ["6ENSA", "Enterprise Networking, Security, and Automation", 3], ["6SHSEC", "Software and Hardware Security", 1], ["6SERVERSEC2", "Server Administration and Security 2", 1], ["9CALBPHYS", "Calculus-based Physics", 3], ["9CALBPHYSL", "Calculus-based Physics Laboratory", 1]]}, {"sem": "4th Year · 1st Trimester", "c": [["PSMS501", "Cybersecurity in Cloud Computing", 3], ["PSMS502", "Applied Cryptography", 3], ["PSMS503", "Network and Security", 3]]}, {"sem": "4th Year · 2nd Trimester", "c": [["PSMS504", "Information Systems and Security Management", 3], ["PSMS505", "Ethical Hacking and Countermeasures", 3], ["PSMS507", "Cybercrime Investigation, Digital Forensics and Incident Response", 3]]}, {"sem": "4th Year · 3rd Trimester", "c": [["PSMBI501", "Cybersecurity and Privacy: Law, Policies, and Compliance", 3], ["PSMB502", "Project Management", 3], ["PSMB503", "Leadership and Communication", 3]]}, {"sem": "5th Year · 1st Trimester", "c": [["PSMB504", "Accounting & Finance", 3], ["PSMB505", "Management & Security of Enterprise Systems", 3]]}, {"sem": "5th Year · 2nd Trimester", "c": [["PSMCI501", "Capstone Project 1 (Internship and Integration Research)", 3]]}, {"sem": "5th Year · 3rd Trimester", "c": [["PSMCI502", "Capstone Project 2 (Product/System Development)", 6]]}], "elect": [], "electLabel": "Elective"}});
+let PROG=PROGRAMS['BSIT-WD'],CUR=PROG.terms,ELECT=PROG.elect;
+function setProgram(id){if(!PROGRAMS[id])id='BSIT-WD';PROG=PROGRAMS[id];CUR=PROG.terms;ELECT=PROG.elect}
 const GOPTS=[['',' — '],['1.00','1.00'],['1.25','1.25'],['1.50','1.50'],['1.75','1.75'],['2.00','2.00'],['2.25','2.25'],['2.50','2.50'],['2.75','2.75'],['3.00','3.00'],['5.00','5.00 F'],['6.00','6.0 FA'],['8.00','8.0 UW'],['9.00','9.0 DRP'],['INC','INC']];
 const PNAMES=['Prelim','Midterm','Finals'];
 
@@ -313,15 +316,16 @@ const PNAMES=['Prelim','Midterm','Finals'];
 const KEY_BASE='hau-grade-calc-v1';
 function blankPeriod(mode){return {mode:mode||'itemized',cs:'',ex:'',items:[{n:'',s:'',m:''}],lec:{s:'',m:''},lab:{s:'',m:''},method:'raw',lecW:'50'}}
 function blankSubject(){return ensureErp({id:'s'+Date.now()+Math.floor(Math.random()*1e4),code:'',name:'New subject',csW:'65',exW:'35',pass:'50',round:'trunc',periods:[blankPeriod(),blankPeriod(),blankPeriod()]})}
-let KEY=KEY_BASE,S=null,API=false,USER=null,syncTimer=null;
+let PENDING_PROGRAM=null,KEY=KEY_BASE,S=null,API=false,USER=null,syncTimer=null;
 function readLocal(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
 function normalize(raw){
   let s=raw&&typeof raw==='object'?raw:{};
   if(!Array.isArray(s.subjects))s.subjects=[];
-  s.year=s.year||3;s.sem=s.sem||1;if(!['mine','course','gwa','ref','acct'].includes(s.tab))s.tab='mine';
+  if(!PROGRAMS[s.program])s.program=PENDING_PROGRAM||'BSIT-WD';setProgram(s.program);
+  if(typeof s.term!=='number')s.term=((s.year||3)-1)*2+((s.sem||1)-1);s.term=Math.max(0,Math.min(CUR.length-1,s.term));if(!['mine','course','gwa','ref','acct'].includes(s.tab))s.tab='mine';
   if(!s.v||s.v<2)s.tab='mine';s.v=3;
   s.gwa=s.gwa||{};s.gwa.grades=s.gwa.grades||{};s.gwa.elect=s.gwa.elect||{};s.gwa.nstp=!!s.gwa.nstp;
-  if(!s.subjects.length){const c=CUR[(s.year-1)*2+(s.sem-1)].c[0];const x=blankSubject();x.code=c[0];x.name=c[1];applyDefaultShares(x);s.subjects.push(x)}
+  if(!s.subjects.length){const c=CUR[s.term].c[0];const x=blankSubject();x.code=c[0];x.name=c[1];applyDefaultShares(x);s.subjects.push(x)}
   s.subjects.forEach(ensureErp);
   if(!s.subjects.some(x=>x.id===s.cur))s.cur=s.subjects[0].id;
   return s;
@@ -397,8 +401,8 @@ let ERP_EDIT=false;
 function makeErp(s){const cw=num(s.csW)??65,ew=num(s.exW)??35;
   return {cols:[0,1,2].map(i=>{const p=s.periods&&s.periods[i];return [{l:'Class standing',m:String(cw),s:p&&p.mode==='quick'&&p.cs!=null?String(p.cs):''}]}),
     ex:[0,1,2].map(i=>{const p=s.periods&&s.periods[i];return {m:String(ew),s:p&&p.mode==='quick'&&p.ex!=null?String(p.ex):''}})};}
-function defaultShares(code){return /^6/.test(String(code||'').trim().toUpperCase())?['65','35']:['70','30']}
-function subjectType(code){return /^6/.test(String(code||'').trim().toUpperCase())?'Professional (major)':'General education'}
+function defaultShares(code){return /^(6|PSM)/.test(String(code||'').trim().toUpperCase())?['65','35']:['70','30']}
+function subjectType(code){return /^(6|PSM)/.test(String(code||'').trim().toUpperCase())?'Professional (major)':'General education'}
 function hasScores(s){
   const e=s.erp;if(e&&(e.cols.some(c=>c.some(x=>x.s!==''&&x.s!=null))||e.ex.some(x=>x.s!==''&&x.s!=null)))return true;
   return (s.periods||[]).some(p=>p.cs||p.ex||p.items.some(i=>i.s!==''&&i.s!=null)||p.lec.s||p.lab.s);
@@ -498,10 +502,11 @@ function mergeData(d){
 }
 
 /* ---------- shared helpers ---------- */
-const YEARS=['1st Year','2nd Year','3rd Year','4th Year'],SEMS=['1st Semester','2nd Semester'];
+
 const COLORS=['#8b1a24','#a8432a','#6d2a4a','#9c5b1f','#3f5d6b','#5b3a7a','#2f6b4f','#7a1f5c'];
-function semIdx(){return (S.year-1)*2+(S.sem-1)}
-function semLabel(){return YEARS[S.year-1]+' · '+SEMS[S.sem-1]}
+function semIdx(){return Math.max(0,Math.min(CUR.length-1,S.term||0))}
+function termName(t){return t.sem.replace(/Sem$/,'Semester')}
+function semLabel(){return termName(CUR[semIdx()])}
 function semSubjects(){
   return CUR[semIdx()].c.map(([code,title,units])=>{
     if(/^ELECTIVE/.test(code)){const ch=S.gwa.elect[code];if(!ch)return {code,title,units,slot:code,pending:true};const e=ELECT.find(x=>x[0]===ch);return {code:ch,title:e?e[1]:title,units,slot:code}}
@@ -538,7 +543,7 @@ function renderMine(){
     const badge=shown?`<span class="ccard-grade">${shown}</span>`:`<span class="ccard-grade empty">No grade</span>`;
     const hint=cg!=null&&(!sel||+sel!==cg)?`<button class="hint" data-act="use" data-code="${x.slot}" data-g="${cg.toFixed(2)}">Calculator says ${cg.toFixed(2)} · Use it</button>`:'';
     const elec=/^ELECTIVE/.test(x.slot)?`<select id="el-m-${x.slot}" data-g="e.${x.slot}" aria-label="Choose ${esc(x.slot)}">${electOptions(S.gwa.elect[x.slot]||'')}</select>`:'';
-    const titleLine=x.pending?`IT Elective (choose below)`:`${esc(x.code)} · ${esc(x.title)}`;
+    const titleLine=x.pending?`${PROG.electLabel} (choose below)`:`${esc(x.code)} · ${esc(x.title)}`;
     return `<article class="ccard">
       <button class="ccard-top" style="--c:${COLORS[i%COLORS.length]}" data-act="open-sub" data-code="${esc(x.code)}" data-name="${esc(x.title)}" data-pending="${x.pending?1:''}" aria-label="Open grades for ${esc(x.code)}">${badge}</button>
       <div class="ccard-body">
@@ -547,12 +552,11 @@ function renderMine(){
         <label class="ccard-row" for="m-${x.slot}">Final grade <select id="m-${x.slot}" data-g="g.${x.slot}">${gradeOptions(sel)}</select></label>
       </div></article>`}).join('');
   const c=gwaCalc(rowsOf(CUR[semIdx()]));
-  const todo=list.filter(x=>!S.gwa.grades[x.slot]).map(x=>`<li><button class="link" data-act="open-sub" data-code="${esc(x.code)}" data-name="${esc(x.title)}" data-pending="${x.pending?1:''}">${x.pending?'Choose your IT elective':'Enter a grade for '+esc(x.code)}</button></li>`).join('');
+  const todo=list.filter(x=>!S.gwa.grades[x.slot]).map(x=>`<li><button class="link" data-act="open-sub" data-code="${esc(x.code)}" data-name="${esc(x.title)}" data-pending="${x.pending?1:''}">${x.pending?'Choose your '+PROG.electLabel.toLowerCase():'Enter a grade for '+esc(x.code)}</button></li>`).join('');
   document.getElementById('panel-mine').innerHTML=`
     <div class="page-head"><h1>Dashboard</h1>
       <div class="semsel">
-        <label class="f" for="selYear">Year<select id="selYear">${YEARS.map((y,i)=>`<option value="${i+1}"${S.year===i+1?' selected':''}>${y}</option>`).join('')}</select></label>
-        <label class="f" for="selSem">Semester<select id="selSem">${SEMS.map((y,i)=>`<option value="${i+1}"${S.sem===i+1?' selected':''}>${y}</option>`).join('')}</select></label>
+        <label class="f" for="selTerm">Year and term<select id="selTerm">${CUR.map((t,i)=>`<option value="${i}"${semIdx()===i?' selected':''}>${esc(termName(t))}</option>`).join('')}</select></label>
       </div></div>
     <p class="lead">Click a subject to open its grades, or pick the final grade if you already know it.</p>
     <div class="two">
@@ -665,13 +669,13 @@ function renderGWA(){
       if(isE){const ch=S.gwa.elect[r.code]||'';const e=ELECT.find(x=>x[0]===ch);title=`${e?esc(e[1]):esc(r.title)}<select class="elec" id="el-g-${r.code}" data-g="e.${r.code}" aria-label="Choose ${esc(r.title)}">${electOptions(ch)}</select>`}
       return `<tr><td class="code">${isE&&S.gwa.elect[r.code]?esc(S.gwa.elect[r.code]):r.code}${r.nstp?' <span class="muted small">(NSTP)</span>':''}</td><td>${title}</td><td class="u">${r.units}</td>
         <td class="g"><select id="g-${r.code}" data-g="g.${r.code}" aria-label="Grade for ${r.code}">${gradeOptions(sel)}</select></td></tr>`}).join('');
-    return `<details class="sem"${k===cur?' open':''}><summary><span class="sem-name">${sem.sem.replace('Sem','Semester')}</span><span id="ss${k}"></span><span class="sem-gwa">GWA <b id="sg${k}">—</b> · <span id="su${k}"></span></span></summary>
+    return `<details class="sem"${k===cur?' open':''}><summary><span class="sem-name">${termName(sem)}</span><span id="ss${k}"></span><span class="sem-gwa">GWA <b id="sg${k}">—</b> · <span id="su${k}"></span></span></summary>
       <div class="ctable"><table class="ct"><thead><tr><th>Code</th><th>Subject</th><th>Units</th><th>Grade</th></tr></thead><tbody>${rows}</tbody></table></div></details>`}).join('');
   document.getElementById('panel-gwa').innerHTML=`
     <div class="page-head"><h1>General Weighted Average</h1></div>
     <div class="stats">
       <div class="box stat"><div class="k">Cumulative GWA</div><div class="v" id="gAll">—</div></div>
-      <div class="box stat"><div class="k">Units earned</div><div class="v"><span id="gUnits">0</span> <span class="small muted" style="font-weight:400">of 165</span></div></div>
+      <div class="box stat"><div class="k">Units earned</div><div class="v"><span id="gUnits">0</span> <span class="small muted" style="font-weight:400">of ${PROG.total}</span></div></div>
       <div class="box stat"><div class="k">Latin honors</div><div class="v" id="gLatin" style="font-size:18px">—</div></div>
       <div class="box stat"><div class="k">Subjects graded</div><div class="v" id="gCount">0</div></div>
     </div>
@@ -699,6 +703,7 @@ function updateGWA(){
 }
 
 /* ---------- account ---------- */
+function progOptions(sel){return Object.entries(PROGRAMS).map(([id,p])=>`<option value="${id}"${id===sel?' selected':''}>${esc(p.name)}</option>`).join('')}
 function renderAcct(){
   const prof=USER?`<dl class="kv"><dt>Name</dt><dd>${esc(USER.name)}</dd><dt>Student number</dt><dd>${esc(USER.studentNumber)}</dd></dl>
       <p class="note">Your grades are saved to your account automatically.</p>
@@ -708,6 +713,10 @@ function renderAcct(){
     <div class="page-head"><h1>Account</h1></div>
     <div class="acct">
       <section class="box"><h2>Profile</h2>${prof}</section>
+      <section class="box"><h2>Program</h2>
+        <label class="f" for="selProgram">Your program and curriculum<select id="selProgram">${progOptions(S.program)}</select></label>
+        <p class="note">Changing programs keeps your saved grades. Subjects shared between programs keep their grades.</p>
+        <div class="msg" id="progMsg"></div></section>
       <section class="box"><h2>Backup</h2>
         <p style="margin:0">Save all your subjects and grades to a file, or load a backup file.</p>
         <div class="btnrow"><button class="btn" data-act="export">Export backup</button><button class="btn" data-act="import">Import backup</button></div>
@@ -744,7 +753,7 @@ grade      = equivalent of the transmuted value</div>
     <li>No credit for an advanced subject if you fail its prerequisite.</li>
     <li>School of Computing: failing a professional course three times, or failing 50% of courses, means you'll be advised to shift programs.</li>
     <li>A faculty member can file a change of grade within one school year.</li></ul>
-    <p class="note">Handbook pp. 29–31 and 73. Curriculum: BSITAreaWebDev2022, 165 units.</p></div>
+    <p class="note">Handbook pp. 29–31 and 73. Curricula: SOC programs (BSIT, BSCS, BSEMC, BS Cybersecurity).</p></div>
   </div>`;
 }
 
@@ -761,7 +770,7 @@ function pdfStart(title,subtitle){
   const doc=new window.jspdf.jsPDF({unit:'pt',format:'a4'});
   doc.setFillColor(...MAROON);doc.rect(0,0,595.28,74,'F');
   doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(19);doc.text(title,40,40);
-  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.text('HAU SOC Grader · School of Computing · BSIT Web Development',40,58);
+  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.text('HAU SOC Grader · School of Computing · '+PROG.short,40,58);
   doc.setTextColor(45,59,69);doc.setFontSize(10.5);
   const lines=[['Student',USER?`${USER.name} (${USER.studentNumber})`:'—'],...subtitle,['Generated',new Date().toLocaleString('en-PH',{dateStyle:'long',timeStyle:'short'})]];
   let y=100;lines.forEach(([k,v])=>{doc.setFont('helvetica','bold');doc.text(k,40,y);doc.setFont('helvetica','normal');doc.text(String(v),148,y);y+=16});
@@ -812,10 +821,10 @@ async function pdfErp(s,R){
 async function pdfGWA(){
   await loadPdf();const all=CUR.flatMap(rowsOf);const c=gwaCalc(all);
   const latin=document.getElementById('gLatin')?document.getElementById('gLatin').textContent:'—';
-  let {doc,y}=pdfStart('GWA Report',[['Program','BSIT Web Development (2022 curriculum)'],['Cumulative GWA',c.gwa==null?'—':c.gwa.toFixed(3)],['Units earned',`${c.earned} of 165`],['Latin honors',latin]]);
+  let {doc,y}=pdfStart('GWA Report',[['Program',PROG.name],['Cumulative GWA',c.gwa==null?'—':c.gwa.toFixed(3)],['Units earned',`${c.earned} of ${PROG.total}`],['Latin honors',latin]]);
   CUR.forEach(sem=>{
     const rows=rowsOf(sem);const g=gwaCalc(rows);if(!rows.some(r=>S.gwa.grades[r.code]))return;
-    y=pdfHeading(doc,y,`${sem.sem.replace('Sem','Semester')}  ·  GWA ${g.gwa==null?'—':g.gwa.toFixed(3)}`);
+    y=pdfHeading(doc,y,`${termName(sem)}  ·  GWA ${g.gwa==null?'—':g.gwa.toFixed(3)}`);
     y=pdfTable(doc,y,['Code','Subject','Units','Grade'],rows.map(r=>{const isE=/^ELECTIVE/.test(r.code);const ch=S.gwa.elect[r.code];const e=ch&&ELECT.find(x=>x[0]===ch);
       return [isE&&ch?ch:r.code,e?e[1]:r.title,String(r.units),S.gwa.grades[r.code]||'—']}),{columnStyles:{2:{halign:'center',cellWidth:50},3:{halign:'center',cellWidth:60,fontStyle:'bold'}}});
   });
@@ -839,7 +848,8 @@ function onField(e){
   if(el.id==='subSel'){if(!ch)return;const v=el.value;
     if(v.startsWith('c:')){const code=v.slice(2);const it=semSubjects().find(x=>x.code===code);openSubject(code,it?it.title:code)}else S.cur=v.slice(3);
     save();renderCourse();renderCrumbs();return}
-  if(el.id==='selYear'||el.id==='selSem'){if(!ch)return;S[el.id==='selYear'?'year':'sem']=+el.value;save();renderMine();renderCourse();renderGWA();return}
+  if(el.id==='selTerm'){if(!ch)return;S.term=+el.value;save();renderMine();renderCourse();renderGWA();return}
+  if(el.id==='selProgram'){if(!ch)return;S.program=el.value;setProgram(S.program);S.term=Math.min(S.term,CUR.length-1);S=normalize(S);save();renderAll();setTab('acct');const m=document.getElementById('progMsg');if(m)m.textContent='Program changed to '+PROG.short+'.';return}
   if(el.dataset.move){if(!ch)return;const [i,j]=el.dataset.move.split('.').map(Number);const to=+el.value;const s=sub();
     const it=s.periods[i].items.splice(j,1)[0];if(!s.periods[i].items.length)s.periods[i].items.push({n:'',s:'',m:''});
     const tp=s.periods[to];if(tp.items.length===1&&!tp.items[0].n&&!tp.items[0].s&&!tp.items[0].m)tp.items=[];tp.items.push(it);
@@ -870,7 +880,7 @@ root.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;const s=sub();
   if(a==='tab'){setTab(b.dataset.t);window.scrollTo(0,0);return}
   if(a==='open-sub'){
-    if(b.dataset.pending){const sel=document.getElementById('el-m-'+b.dataset.code);if(sel)sel.focus();document.getElementById('mineMsg').textContent='Choose which IT elective you are taking first.';return}
+    if(b.dataset.pending){const sel=document.getElementById('el-m-'+b.dataset.code);if(sel)sel.focus();document.getElementById('mineMsg').textContent='Choose which '+PROG.electLabel.toLowerCase()+' you are taking first.';return}
     openSubject(b.dataset.code,b.dataset.name);save();renderCourse();setTab('course');window.scrollTo(0,0);return}
   if(a==='use'){S.gwa.grades[b.dataset.code]=b.dataset.g;save();renderMine();renderGWA();return}
   if(a==='src'){s.src=b.dataset.v;save();renderCourse();renderMine();return}
@@ -889,8 +899,8 @@ root.addEventListener('click',e=>{
     const code=(s.code||'').trim().toUpperCase();let slot=null;
     CUR.forEach(sem=>sem.c.forEach(c=>{if(c[0]===code)slot=c[0]}));
     if(!slot)Object.keys(S.gwa.elect).forEach(k=>{if(S.gwa.elect[k]===code)slot=k});
-    if(!slot&&ELECT.some(x=>x[0]===code)){const free=['ELECTIVE1','ELECTIVE2','ELECTIVE3','ELECTIVE4'].find(k=>!S.gwa.elect[k]);if(free){S.gwa.elect[free]=code;slot=free}}
-    if(!slot){m.textContent=code?`${code} isn't in the BSIT Web Dev curriculum. Check the course code in Settings.`:'Add a course code in Settings first.';return}
+    if(!slot&&ELECT.some(x=>x[0]===code)){const free=CUR.flatMap(t=>t.c).map(c=>c[0]).filter(c=>/^ELECTIVE/.test(c)).find(k=>!S.gwa.elect[k]);if(free){S.gwa.elect[free]=code;slot=free}}
+    if(!slot){m.textContent=code?`${code} isn't in your program's curriculum. Check the course code in Settings.`:'Add a course code in Settings first.';return}
     S.gwa.grades[slot]=g.toFixed(2);save();renderMine();renderGWA();m.textContent=`Saved ${g.toFixed(2)} as your ${code} final grade.`;return}
   if(a==='logout'){clearTimeout(syncTimer);(async()=>{try{await pushData()}catch(x){}try{await fetch('api/logout',{method:'POST',credentials:'same-origin'})}catch(x){}location.reload()})();return}
   if(a==='export'){const blob=new Blob([JSON.stringify({app:'hau-soc-grader',version:1,data:S},null,1)],{type:'application/json'});const u=URL.createObjectURL(blob);const l=document.createElement('a');l.href=u;l.download='hau-soc-grader-backup.json';document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);return}
@@ -936,7 +946,7 @@ function setAuthMode(m){
 document.getElementById('authForm').addEventListener('submit',async e=>{
   e.preventDefault();const f=e.target,m=f.dataset.mode,err=document.getElementById('authErr');
   const body={studentNumber:f.aNo.value.trim(),password:f.aPass.value};
-  if(m==='signup'){body.name=f.aName.value.trim();if(f.aPass.value!==f.aPass2.value){err.textContent='Passwords do not match.';return}}
+  if(m==='signup'){PENDING_PROGRAM=f.aProg.value;body.name=f.aName.value.trim();if(f.aPass.value!==f.aPass2.value){err.textContent='Passwords do not match.';return}}
   const btn=document.getElementById('authSubmit');btn.disabled=true;err.textContent='';
   try{const r=await fetch(m==='signup'?'api/signup':'api/login',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify(body)});
     const j=await r.json().catch(()=>({}));
@@ -945,6 +955,7 @@ document.getElementById('authForm').addEventListener('submit',async e=>{
   }catch(x){err.textContent='Cannot reach the server. Check your connection.'}
   finally{btn.disabled=false}
 });
+document.getElementById('aProg').innerHTML=progOptions('BSIT-WD');
 document.getElementById('authLogin').addEventListener('click',()=>setAuthMode('login'));
 document.getElementById('authSignup').addEventListener('click',()=>setAuthMode('signup'));
 async function boot(){

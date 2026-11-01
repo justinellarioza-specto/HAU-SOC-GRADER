@@ -1,6 +1,14 @@
 # HAU-SOC-GRADER
 
-A grade and GWA calculator for Holy Angel University School of Computing students, BSIT Web Development track (2022 curriculum).
+A grade and GWA calculator for Holy Angel University School of Computing students.
+
+Supported programs (pick one at sign up or on the Account page):
+- BSIT – Web Development (2022), 165 units
+- BSIT – Network Administration (2022), 162 units
+- BSCS – Artificial Intelligence (CY 2026–2027), 160 units
+- BSEMC – Digital Animation (2022), 162 units
+- BS Cybersecurity (2022, amended 2024), 160 units
+- BS Cybersecurity + PSM in Cybersecurity (2022, amended 2024), including the 4th and 5th year trimesters
 
 Students sign up with their name, student number and password. Their subjects and grades are saved to MongoDB, so they can log in from any device.
 
