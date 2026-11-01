@@ -6,7 +6,7 @@
 <title>HAU SOC Grader</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap">
 <style>
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html,body{min-height:100%}
@@ -15,10 +15,10 @@ img{max-width:100%}
 [hidden]{display:none!important}
 /* Layout: LMS-style — fixed maroon global nav on the left (bottom tab bar on phones), breadcrumb bar on top, white pages with plain tables and a right-hand sidebar. Single light look by design. */
 :root{
-  --page:#ffffff; --soft:#f5f5f5; --ink:#2d3b45; --muted:#6b7780; --line:#c7cdd1; --line-soft:#e6e9eb;
+  --page:#ffffff; --soft:#f4f5f6; --ink:#22303a; --muted:#5f6b74; --line:#c9ced2; --line-soft:#e4e7e9;
   --brand:#8b1a24; --brand-dark:#6c121a; --brand-soft:#f8eced; --link:#8b1a24;
   --good:#127a3e; --good-soft:#e7f4ec; --warn:#a45a00; --warn-soft:#fdf1e1; --bad:#c0221b; --bad-soft:#fdeceb;
-  --f:"Lato","Helvetica Neue",Arial,sans-serif;
+  --f:"Public Sans","Helvetica Neue",Arial,sans-serif; --serif:"Source Serif 4",Georgia,serif;
   --nav:84px;
   color-scheme:light;
 }
@@ -30,7 +30,7 @@ button,input,select{font-family:inherit}
 
 /* global nav */
 .gnav{position:fixed;left:0;top:0;bottom:0;width:var(--nav);background:var(--brand);display:flex;flex-direction:column;align-items:stretch;padding-top:calc(env(safe-area-inset-top,0px) + 12px);padding-left:env(safe-area-inset-left,0px);z-index:10}
-.gnav-brand{color:#fff;font-weight:900;font-size:13px;letter-spacing:.06em;text-align:center;line-height:1.15;padding:6px 0 16px;border-bottom:1px solid rgba(255,255,255,.18);margin-bottom:6px}
+.gnav-brand{color:#fff;font-family:var(--serif);font-weight:600;font-size:15px;letter-spacing:.02em;text-align:center;line-height:1.15;padding:6px 0 16px;border-bottom:1px solid rgba(255,255,255,.18);margin-bottom:6px}
 .gnav-item{display:flex;flex-direction:column;align-items:center;gap:5px;background:transparent;border:0;color:#fff;font-size:12px;padding:12px 4px;cursor:pointer;opacity:.92}
 .gnav-item svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .gnav-item:hover{background:rgba(255,255,255,.08);opacity:1}
@@ -56,7 +56,7 @@ button,input,select{font-family:inherit}
 
 /* common */
 .page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px 20px;flex-wrap:wrap;margin-bottom:18px}
-h1{font-size:28px;font-weight:400;margin:0;line-height:1.2;text-wrap:balance}
+h1{font-family:var(--serif);font-size:30px;font-weight:600;letter-spacing:-.01em;margin:0;line-height:1.15;text-wrap:balance}
 h2{font-size:18px;font-weight:700;margin:0 0 10px}
 h3{font-size:16px;font-weight:700;margin:0}
 .lead{color:var(--muted);margin:-10px 0 18px}
@@ -93,13 +93,15 @@ dl.kv dd{margin:0;font-weight:700;text-align:right}
 .semsel{display:flex;gap:10px;flex-wrap:wrap}
 .semsel label{flex-direction:row;align-items:center;gap:8px}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px}
-.ccard{border:1px solid var(--line-soft);border-radius:6px;overflow:hidden;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.08);display:flex;flex-direction:column}
+.ccard{border:1px solid var(--line-soft);border-radius:6px;overflow:hidden;background:#fff;display:flex;flex-direction:column}
+.ccard:hover{border-color:var(--line)}
 .ccard-top{position:relative;height:118px;border:0;padding:0;cursor:pointer;background:var(--c,#8b1a24);display:block;width:100%}
 .ccard-top:hover{filter:brightness(1.07)}
-.ccard-grade{position:absolute;right:12px;top:12px;background:rgba(255,255,255,.95);color:var(--ink);font-weight:900;font-size:15px;border-radius:4px;padding:4px 9px}
-.ccard-grade.empty{font-weight:700;font-size:12px;color:var(--muted)}
+.ccard-code{position:absolute;left:14px;bottom:10px;color:rgba(255,255,255,.92);font-family:var(--serif);font-size:22px;font-weight:600;letter-spacing:-.01em;line-height:1}
+.ccard-grade{position:absolute;right:12px;top:12px;background:#fff;color:var(--ink);font-family:var(--serif);font-weight:600;font-size:17px;border-radius:4px;padding:3px 9px;font-variant-numeric:lining-nums tabular-nums}
+.ccard-grade.empty{font-family:var(--f);font-weight:600;font-size:12px;color:var(--muted)}
 .ccard-body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
-.ccard-title{font-size:15px;font-weight:700;color:var(--link)}
+.ccard-title{font-size:15.5px;font-weight:600;color:var(--link);line-height:1.35}
 .ccard-meta{font-size:13px;color:var(--muted)}
 .ccard-row{display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:6px;font-size:13px}
 .ccard-row select{flex:1}
@@ -136,7 +138,7 @@ tr.addrow td{padding-block:8px}
 .sum-row small{color:var(--muted);margin-left:6px;font-weight:400}
 .sum-final{display:flex;justify-content:space-between;align-items:baseline;padding-top:12px}
 .sum-final span{font-weight:700}
-.sum-final b{font-size:30px;font-weight:900;color:var(--brand)}
+.sum-final b{font-family:var(--serif);font-size:38px;font-weight:600;line-height:1;color:var(--brand);font-variant-numeric:lining-nums tabular-nums}
 .ladder{width:100%;border-collapse:collapse;font-size:14px}
 .ladder th{font-weight:700;text-align:left;padding:6px 4px;border-bottom:1px solid var(--line)}
 .ladder td{padding:6px 4px;border-bottom:1px solid var(--line-soft)}
@@ -153,7 +155,7 @@ details.box[open]>summary{margin-bottom:12px}
 .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
 @media (max-width:760px){.stats{grid-template-columns:1fr 1fr}}
 .stat .k{font-size:13px;color:var(--muted)}
-.stat .v{font-size:26px;font-weight:900;margin-top:2px;line-height:1.2}
+.stat .v{font-family:var(--serif);font-size:30px;font-weight:600;margin-top:2px;line-height:1.15;font-variant-numeric:lining-nums tabular-nums}
 .opts{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:14px;font-size:14px}
 .opts label{display:flex;gap:8px;align-items:center}
 details.sem{border:1px solid var(--line-soft);border-radius:6px;margin-bottom:12px;background:#fff}
@@ -190,9 +192,9 @@ table.eq td{padding:6px 8px;border-bottom:1px solid var(--line-soft)}
 
 /* sign in */
 .auth{min-height:100vh;background:var(--soft);display:flex;align-items:center;justify-content:center;padding-block:32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.auth-card{width:100%;max-width:400px;background:#fff;border:1px solid var(--line-soft);border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.08);overflow:hidden}
+.auth-card{width:100%;max-width:400px;background:#fff;border:1px solid var(--line-soft);border-radius:8px;overflow:hidden}
 .auth-head{background:var(--brand);color:#fff;padding:22px 24px}
-.auth-head h1{font-size:24px;font-weight:900;margin:0}
+.auth-head h1{font-size:28px;margin:0;color:#fff}
 .auth-head p{margin:4px 0 0;font-size:14px;opacity:.9}
 .auth-tabs{display:flex;border-bottom:1px solid var(--line-soft)}
 .auth-tabs button{flex:1;background:none;border:0;border-bottom:3px solid transparent;padding:12px;font-size:15px;font-weight:700;color:var(--muted);cursor:pointer}
@@ -208,6 +210,7 @@ table.eq td{padding:6px 8px;border-bottom:1px solid var(--line-soft)}
   table.gt th,table.gt td{padding:8px 6px}
   table.gt .x{width:30px}
   .ccard-top{height:64px}
+  .ccard-code{font-size:18px}
   .grp-row .link{margin-left:0}
 }
 /* erp class record */
@@ -246,32 +249,31 @@ table.erp-sum{border-collapse:collapse;font-size:13.5px;min-width:100%}
 table.erp-sum th{background:#4b4f53;color:#fff;font-size:11px;text-transform:uppercase;padding:7px 10px;text-align:left;white-space:nowrap}
 table.erp-sum td{border-bottom:1px solid var(--line-soft);padding:7px 10px;font-variant-numeric:tabular-nums}
 /* first-run setup */
-.onboard{min-height:100vh;background:var(--soft);padding-block:40px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.ob-wrap{max-width:880px;margin:0 auto}
-.ob-dots{display:flex;gap:6px;margin-bottom:18px}
-.ob-dots span{width:34px;height:5px;border-radius:3px;background:var(--line)}
-.ob-dots span.on{background:var(--brand)}
-.ob-dots span.done{background:#c98a90}
-.ob-step{font-size:13px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.06em;margin:0 0 6px}
-.ob-wrap h1{font-size:30px;font-weight:900;margin:0 0 6px}
-.ob-wrap .lead{margin:0 0 22px}
-.ob-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
-.ob-card{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;background:#fff;border:1px solid var(--line-soft);border-top:6px solid var(--brand);border-radius:8px;padding:16px 18px 18px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.06);font:inherit;color:var(--ink);transition:transform .12s,box-shadow .12s}
-.ob-card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.1)}
-.ob-card.on{outline:2px solid var(--brand)}
-.ob-deg{font-size:12px;font-weight:900;letter-spacing:.06em;color:var(--brand);background:var(--brand-soft);padding:3px 8px;border-radius:4px}
-.ob-card b{font-size:16px;line-height:1.3}
-.ob-meta{font-size:13px;color:var(--muted)}
-.ob-years{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
-.ob-year{background:#fff;border:1px solid var(--line-soft);border-radius:8px;padding:14px 16px}
-.ob-year h2{font-size:15px;margin:0 0 10px}
+.onboard{min-height:100vh;background:var(--page);padding-block:48px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.ob-wrap{max-width:760px;margin:0 auto}
+.ob-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:14px;margin-bottom:32px;border-bottom:3px solid var(--brand)}
+.ob-mark{font-family:var(--serif);font-weight:600;font-size:17px;color:var(--brand)}
+.ob-step{font-size:13.5px;color:var(--muted);margin:0}
+.ob-wrap h1{font-size:36px;margin:0 0 8px}
+.ob-wrap .lead{margin:0 0 28px;max-width:56ch;font-size:15.5px}
+.ob-list{display:flex;flex-direction:column;border-top:1px solid var(--line-soft)}
+.ob-card{display:grid;grid-template-columns:124px minmax(0,1fr) auto;align-items:center;gap:4px 20px;text-align:left;background:#fff;border:0;border-bottom:1px solid var(--line-soft);padding:16px 12px 16px 4px;cursor:pointer;font:inherit;color:var(--ink)}
+.ob-card:hover{background:var(--brand-soft)}
+.ob-card:hover .ob-go{color:var(--brand)}
+.ob-card.on{background:var(--brand-soft);box-shadow:inset 3px 0 0 var(--brand)}
+.ob-deg{font-family:var(--serif);font-size:24px;font-weight:600;color:var(--brand);line-height:1;padding-left:12px}
+.ob-txt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ob-txt b{font-size:16.5px;font-weight:600;line-height:1.3}
+.ob-meta{font-size:13.5px;color:var(--muted)}
+.ob-go{font-size:14px;font-weight:600;color:var(--muted);white-space:nowrap}
+.ob-years{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:28px 20px}
+.ob-year h2{font-family:var(--serif);font-size:19px;font-weight:600;margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid var(--line-soft)}
 .ob-terms{display:flex;flex-direction:column;gap:8px}
-.ob-term{text-align:left;font:inherit;font-size:14.5px;font-weight:700;background:var(--soft);border:1px solid var(--line-soft);border-radius:6px;padding:10px 12px;cursor:pointer;color:var(--ink)}
+.ob-term{text-align:left;font:inherit;font-size:14.5px;font-weight:600;background:#fff;border:1px solid var(--line);border-radius:4px;padding:10px 12px;cursor:pointer;color:var(--ink)}
 .ob-term:hover{border-color:var(--brand);color:var(--brand)}
 .ob-term.on{background:var(--brand);border-color:var(--brand);color:#fff}
-.onboard .btnrow{margin-top:22px}
-@media (max-width:600px){.ob-wrap h1{font-size:24px}.onboard{padding-block:24px 40px}}
-@media (prefers-reduced-motion:reduce){.ob-card{transition:none}}
+.onboard .btnrow{margin-top:32px}
+@media (max-width:600px){.ob-wrap h1{font-size:28px}.onboard{padding-block:24px 40px}.ob-card{grid-template-columns:92px minmax(0,1fr)}.ob-go{display:none}.ob-deg{font-size:20px;padding-left:8px}.ob-top{margin-bottom:24px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -570,16 +572,16 @@ function renderMine(){
     const badge=shown?`<span class="ccard-grade">${shown}</span>`:`<span class="ccard-grade empty">No grade</span>`;
     const hint=cg!=null&&(!sel||+sel!==cg)?`<button class="hint" data-act="use" data-code="${x.slot}" data-g="${cg.toFixed(2)}">Calculator says ${cg.toFixed(2)} · Use it</button>`:'';
     const elec=/^ELECTIVE/.test(x.slot)?`<select id="el-m-${x.slot}" data-g="e.${x.slot}" aria-label="Choose ${esc(x.slot)}">${electOptions(S.gwa.elect[x.slot]||'')}</select>`:'';
-    const titleLine=x.pending?`${PROG.electLabel} (choose below)`:`${esc(x.code)} · ${esc(x.title)}`;
+    const titleLine=x.pending?`${PROG.electLabel} (choose below)`:esc(x.title);
     return `<article class="ccard">
-      <button class="ccard-top" style="--c:${COLORS[i%COLORS.length]}" data-act="open-sub" data-code="${esc(x.code)}" data-name="${esc(x.title)}" data-pending="${x.pending?1:''}" aria-label="Open grades for ${esc(x.code)}">${badge}</button>
+      <button class="ccard-top" style="--c:${COLORS[i%COLORS.length]}" data-act="open-sub" data-code="${esc(x.code)}" data-name="${esc(x.title)}" data-pending="${x.pending?1:''}" aria-label="Open grades for ${esc(x.code)}"><span class="ccard-code">${esc(x.code)}</span>${badge}</button>
       <div class="ccard-body">
         <button class="link ccard-title" data-act="open-sub" data-code="${esc(x.code)}" data-name="${esc(x.title)}" data-pending="${x.pending?1:''}">${titleLine}</button>
         <div class="ccard-meta">${x.units} units</div>${elec}${hint}
         <label class="ccard-row" for="m-${x.slot}">Final grade <select id="m-${x.slot}" data-g="g.${x.slot}">${gradeOptions(sel)}</select></label>
       </div></article>`}).join('');
   const c=gwaCalc(rowsOf(CUR[semIdx()]));
-  const todo=list.filter(x=>!S.gwa.grades[x.slot]).map(x=>`<li><button class="link" data-act="open-sub" data-code="${esc(x.code)}" data-name="${esc(x.title)}" data-pending="${x.pending?1:''}">${x.pending?'Choose your '+PROG.electLabel.toLowerCase():'Enter a grade for '+esc(x.code)}</button></li>`).join('');
+  const todo=list.filter(x=>!S.gwa.grades[x.slot]).map(x=>`<li><button class="link" data-act="open-sub" data-code="${esc(x.code)}" data-name="${esc(x.title)}" data-pending="${x.pending?1:''}">${x.pending?'Choose your '+esc(PROG.electLabel.replace(/ Elective$/,'')+' elective'):'Enter a grade for '+esc(x.code)}</button></li>`).join('');
   document.getElementById('panel-mine').innerHTML=`
     <div class="page-head"><h1>Dashboard</h1>
       <div class="semsel">
@@ -869,24 +871,22 @@ function showOnboard(step){
 }
 function renderOnboard(){
   const el=document.getElementById('onboard');const first=USER?String(USER.name).trim().split(/\s+/)[0]:'';
-  const dots=`<div class="ob-dots" aria-hidden="true"><span class="${OB.step===1?'on':'done'}"></span><span class="${OB.step===2?'on':''}"></span></div>`;
+  const dots=`<div class="ob-top"><span class="ob-mark">HAU SOC Grader</span><p class="ob-step">Step ${OB.step} of 2</p></div>`;
   if(OB.step===1){
     el.innerHTML=`<div class="ob-wrap">${dots}
-      <p class="ob-step">Step 1 of 2</p>
       <h1>${first?`Hi ${esc(first)}! `:''}What’s your program?</h1>
-      <p class="lead">Your curriculum loads automatically, so your subjects and units are ready for each term.</p>
-      <div class="ob-grid">${Object.entries(PROGRAMS).map(([id,p])=>{const yr=(p.name.match(/\(([^)]*)\)/)||[])[1]||'';const deg=p.short.split(' ')[0];
-        return `<button class="ob-card${S.onboarded&&S.program===id?' on':''}" data-act="ob-prog" data-id="${id}"><span class="ob-deg">${esc(deg)}</span><b>${esc(PROG_BLURB[id]||p.short)}</b><span class="ob-meta">${esc(yr)} curriculum · ${p.total} units</span></button>`}).join('')}</div>
+      <p class="lead">Pick your curriculum and your subjects and units for every term load in for you. You can change this later in Account.</p>
+      <div class="ob-list">${Object.entries(PROGRAMS).map(([id,p])=>{const yr=(p.name.match(/\(([^)]*)\)/)||[])[1]||'';const deg=/^BSCYBER/.test(id)?'BSCyber':p.short.split(' ')[0];
+        return `<button class="ob-card${S.onboarded&&S.program===id?' on':''}" data-act="ob-prog" data-id="${id}"><span class="ob-deg">${esc(deg)}</span><span class="ob-txt"><b>${esc(PROG_BLURB[id]||p.short)}</b><span class="ob-meta">${esc(yr)} curriculum, ${p.total} units</span></span><span class="ob-go">Choose</span></button>`}).join('')}</div>
       ${S.onboarded?'<div class="btnrow"><button class="btn" data-act="ob-cancel">Cancel</button></div>':''}
     </div>`;
   }else{
     const years=[];CUR.forEach((t,i)=>{const [y,term]=t.sem.split(' · ');let g=years.find(x=>x.y===y);if(!g){g={y,list:[]};years.push(g)}g.list.push({i,term:term.replace(/Sem$/,'Semester')})});
     el.innerHTML=`<div class="ob-wrap">${dots}
-      <p class="ob-step">Step 2 of 2</p>
-      <h1>What year and term are you in now?</h1>
-      <p class="lead">${esc(PROG.name)}</p>
+      <h1>Which term are you in now?</h1>
+      <p class="lead">${esc(PROG.name)}. Your dashboard opens on the term you pick.</p>
       <div class="ob-years">${years.map(g=>`<div class="ob-year"><h2>${esc(g.y)}</h2><div class="ob-terms">${g.list.map(x=>`<button class="ob-term${S.onboarded&&semIdx()===x.i?' on':''}" data-act="ob-term" data-i="${x.i}">${esc(x.term)}</button>`).join('')}</div></div>`).join('')}</div>
-      <div class="btnrow"><button class="btn" data-act="ob-back">← Change program</button></div>
+      <div class="btnrow"><button class="btn" data-act="ob-back">Back to programs</button></div>
     </div>`;
   }
 }
