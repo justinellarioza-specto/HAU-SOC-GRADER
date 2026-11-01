@@ -245,6 +245,33 @@ table.erp th .rm{color:#fff;font-size:15px;padding:0 4px}
 table.erp-sum{border-collapse:collapse;font-size:13.5px;min-width:100%}
 table.erp-sum th{background:#4b4f53;color:#fff;font-size:11px;text-transform:uppercase;padding:7px 10px;text-align:left;white-space:nowrap}
 table.erp-sum td{border-bottom:1px solid var(--line-soft);padding:7px 10px;font-variant-numeric:tabular-nums}
+/* first-run setup */
+.onboard{min-height:100vh;background:var(--soft);padding-block:40px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.ob-wrap{max-width:880px;margin:0 auto}
+.ob-dots{display:flex;gap:6px;margin-bottom:18px}
+.ob-dots span{width:34px;height:5px;border-radius:3px;background:var(--line)}
+.ob-dots span.on{background:var(--brand)}
+.ob-dots span.done{background:#c98a90}
+.ob-step{font-size:13px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.06em;margin:0 0 6px}
+.ob-wrap h1{font-size:30px;font-weight:900;margin:0 0 6px}
+.ob-wrap .lead{margin:0 0 22px}
+.ob-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.ob-card{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;background:#fff;border:1px solid var(--line-soft);border-top:6px solid var(--brand);border-radius:8px;padding:16px 18px 18px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.06);font:inherit;color:var(--ink);transition:transform .12s,box-shadow .12s}
+.ob-card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.1)}
+.ob-card.on{outline:2px solid var(--brand)}
+.ob-deg{font-size:12px;font-weight:900;letter-spacing:.06em;color:var(--brand);background:var(--brand-soft);padding:3px 8px;border-radius:4px}
+.ob-card b{font-size:16px;line-height:1.3}
+.ob-meta{font-size:13px;color:var(--muted)}
+.ob-years{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.ob-year{background:#fff;border:1px solid var(--line-soft);border-radius:8px;padding:14px 16px}
+.ob-year h2{font-size:15px;margin:0 0 10px}
+.ob-terms{display:flex;flex-direction:column;gap:8px}
+.ob-term{text-align:left;font:inherit;font-size:14.5px;font-weight:700;background:var(--soft);border:1px solid var(--line-soft);border-radius:6px;padding:10px 12px;cursor:pointer;color:var(--ink)}
+.ob-term:hover{border-color:var(--brand);color:var(--brand)}
+.ob-term.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.onboard .btnrow{margin-top:22px}
+@media (max-width:600px){.ob-wrap h1{font-size:24px}.onboard{padding-block:24px 40px}}
+@media (prefers-reduced-motion:reduce){.ob-card{transition:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -259,7 +286,6 @@ table.erp-sum td{border-bottom:1px solid var(--line-soft);padding:7px 10px;font-
       </div>
       <form id="authForm" data-mode="login" novalidate>
         <label class="f signup-only" for="aName" hidden>Full name<input id="aName" name="aName" autocomplete="name" maxlength="80" placeholder="Juan Dela Cruz"></label>
-        <label class="f signup-only" for="aProg" hidden>Program<select id="aProg" name="aProg"></select></label>
         <label class="f" for="aNo">Student number<input id="aNo" name="aNo" autocomplete="username" maxlength="20" required placeholder="e.g. 20231234"></label>
         <label class="f" for="aPass">Password<input id="aPass" name="aPass" type="password" autocomplete="current-password" minlength="8" maxlength="128" required></label>
         <label class="f signup-only" for="aPass2" hidden>Confirm password<input id="aPass2" name="aPass2" type="password" autocomplete="new-password" minlength="8" maxlength="128"></label>
@@ -271,6 +297,7 @@ table.erp-sum td{border-bottom:1px solid var(--line-soft);padding:7px 10px;font-
     <p class="auth-foot">Student-made tool. Not an official HAU system.</p>
   </div>
 </div>
+<div class="onboard" id="onboard" hidden></div>
 <input type="file" id="importFile" accept="application/json,.json" hidden>
 <div class="app" id="app" hidden>
   <nav class="gnav" role="tablist" aria-label="Main">
@@ -716,6 +743,7 @@ function renderAcct(){
       <section class="box"><h2>Program</h2>
         <label class="f" for="selProgram">Your program and curriculum<select id="selProgram">${progOptions(S.program)}</select></label>
         <p class="note">Changing programs keeps your saved grades. Subjects shared between programs keep their grades.</p>
+        <div class="btnrow"><button class="btn" data-act="ob-open">Change program or year</button></div>
         <div class="msg" id="progMsg"></div></section>
       <section class="box"><h2>Backup</h2>
         <p style="margin:0">Save all your subjects and grades to a file, or load a backup file.</p>
@@ -832,6 +860,37 @@ async function pdfGWA(){
   pdfFinish(doc,'gwa-report.pdf');
 }
 
+/* ---------- first-run setup: program, then year and term ---------- */
+const OB={step:1};
+const PROG_BLURB={'BSIT-WD':'Information Technology, Web Development track','BSIT-NET':'Information Technology, Network Administration track','BSCS-AI':'Computer Science, Artificial Intelligence','BSEMC-DA':'Entertainment and Multimedia Computing, Digital Animation','BSCYBER':'Cybersecurity','BSCYBER-PSM':'Cybersecurity with Professional Science Master’s (5 years)'};
+function showOnboard(step){
+  document.getElementById('auth').hidden=true;document.getElementById('app').hidden=true;
+  document.getElementById('onboard').hidden=false;OB.step=step||1;renderOnboard();window.scrollTo(0,0);
+}
+function renderOnboard(){
+  const el=document.getElementById('onboard');const first=USER?String(USER.name).trim().split(/\s+/)[0]:'';
+  const dots=`<div class="ob-dots" aria-hidden="true"><span class="${OB.step===1?'on':'done'}"></span><span class="${OB.step===2?'on':''}"></span></div>`;
+  if(OB.step===1){
+    el.innerHTML=`<div class="ob-wrap">${dots}
+      <p class="ob-step">Step 1 of 2</p>
+      <h1>${first?`Hi ${esc(first)}! `:''}What’s your program?</h1>
+      <p class="lead">Your curriculum loads automatically, so your subjects and units are ready for each term.</p>
+      <div class="ob-grid">${Object.entries(PROGRAMS).map(([id,p])=>{const yr=(p.name.match(/\(([^)]*)\)/)||[])[1]||'';const deg=p.short.split(' ')[0];
+        return `<button class="ob-card${S.onboarded&&S.program===id?' on':''}" data-act="ob-prog" data-id="${id}"><span class="ob-deg">${esc(deg)}</span><b>${esc(PROG_BLURB[id]||p.short)}</b><span class="ob-meta">${esc(yr)} curriculum · ${p.total} units</span></button>`}).join('')}</div>
+      ${S.onboarded?'<div class="btnrow"><button class="btn" data-act="ob-cancel">Cancel</button></div>':''}
+    </div>`;
+  }else{
+    const years=[];CUR.forEach((t,i)=>{const [y,term]=t.sem.split(' · ');let g=years.find(x=>x.y===y);if(!g){g={y,list:[]};years.push(g)}g.list.push({i,term:term.replace(/Sem$/,'Semester')})});
+    el.innerHTML=`<div class="ob-wrap">${dots}
+      <p class="ob-step">Step 2 of 2</p>
+      <h1>What year and term are you in now?</h1>
+      <p class="lead">${esc(PROG.name)}</p>
+      <div class="ob-years">${years.map(g=>`<div class="ob-year"><h2>${esc(g.y)}</h2><div class="ob-terms">${g.list.map(x=>`<button class="ob-term${S.onboarded&&semIdx()===x.i?' on':''}" data-act="ob-term" data-i="${x.i}">${esc(x.term)}</button>`).join('')}</div></div>`).join('')}</div>
+      <div class="btnrow"><button class="btn" data-act="ob-back">← Change program</button></div>
+    </div>`;
+  }
+}
+
 /* ---------- wiring ---------- */
 const PANELS=['mine','course','gwa','ref','acct'];
 function setTab(t){if(!PANELS.includes(t))t='mine';S.tab=t;PANELS.forEach(x=>{document.getElementById('panel-'+x).hidden=x!==t;document.getElementById('tab-'+x).setAttribute('aria-selected',x===t)});renderCrumbs();save()}
@@ -878,6 +937,11 @@ let delArm=0,clrArm=0;
 function arm(b,label,ts){if(Date.now()-ts>3000){const t=b.textContent;b.textContent=label;setTimeout(()=>{if(b.isConnected)b.textContent=t},3000);return Date.now()}return 0}
 root.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;const s=sub();
+  if(a==='ob-prog'){S.program=b.dataset.id;setProgram(S.program);S.term=Math.min(S.term||0,CUR.length-1);S=normalize(S);save();showOnboard(2);return}
+  if(a==='ob-back'){showOnboard(1);return}
+  if(a==='ob-cancel'){start();return}
+  if(a==='ob-term'){S.term=+b.dataset.i;S.onboarded=true;S.tab='mine';save();start();window.scrollTo(0,0);return}
+  if(a==='ob-open'){showOnboard(1);return}
   if(a==='tab'){setTab(b.dataset.t);window.scrollTo(0,0);return}
   if(a==='open-sub'){
     if(b.dataset.pending){const sel=document.getElementById('el-m-'+b.dataset.code);if(sel)sel.focus();document.getElementById('mineMsg').textContent='Choose which '+PROG.electLabel.toLowerCase()+' you are taking first.';return}
@@ -920,7 +984,9 @@ document.getElementById('importFile').addEventListener('change',async e=>{
 
 /* ---------- accounts ---------- */
 function start(){
-  document.getElementById('auth').hidden=true;document.getElementById('app').hidden=false;
+  document.getElementById('auth').hidden=true;
+  if(!S.onboarded){showOnboard();return}
+  document.getElementById('onboard').hidden=true;document.getElementById('app').hidden=false;
   renderAll();setTab(S.tab||'mine');
   if(!API)setSync('Saved on this device');
 }
@@ -946,7 +1012,7 @@ function setAuthMode(m){
 document.getElementById('authForm').addEventListener('submit',async e=>{
   e.preventDefault();const f=e.target,m=f.dataset.mode,err=document.getElementById('authErr');
   const body={studentNumber:f.aNo.value.trim(),password:f.aPass.value};
-  if(m==='signup'){PENDING_PROGRAM=f.aProg.value;body.name=f.aName.value.trim();if(f.aPass.value!==f.aPass2.value){err.textContent='Passwords do not match.';return}}
+  if(m==='signup'){body.name=f.aName.value.trim();if(f.aPass.value!==f.aPass2.value){err.textContent='Passwords do not match.';return}}
   const btn=document.getElementById('authSubmit');btn.disabled=true;err.textContent='';
   try{const r=await fetch(m==='signup'?'api/signup':'api/login',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify(body)});
     const j=await r.json().catch(()=>({}));
@@ -955,7 +1021,6 @@ document.getElementById('authForm').addEventListener('submit',async e=>{
   }catch(x){err.textContent='Cannot reach the server. Check your connection.'}
   finally{btn.disabled=false}
 });
-document.getElementById('aProg').innerHTML=progOptions('BSIT-WD');
 document.getElementById('authLogin').addEventListener('click',()=>setAuthMode('login'));
 document.getElementById('authSignup').addEventListener('click',()=>setAuthMode('signup'));
 async function boot(){
