@@ -43,8 +43,10 @@ button,input,select{font-family:inherit}
 .crumbs button:hover{text-decoration:underline}
 .crumbs .sep{color:var(--muted)}
 .crumbs .here{color:var(--ink)}
-.sync{margin-left:auto;font-size:12.5px;color:var(--muted);white-space:nowrap}
-.content{flex:1;width:100%;max-width:1240px;padding-block:22px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.sync{margin-left:auto;font-size:12.5px;color:var(--muted);white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.sync:not(:empty)::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--good)}
+.sync[data-s=busy]::before{background:var(--line)}.sync[data-s=local]::before{background:var(--muted)}.sync[data-s=bad]::before{background:var(--bad)}
+.content{flex:1;width:100%;max-width:1240px;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 @media (max-width:760px){
   .gnav{top:auto;width:auto;right:0;height:auto;flex-direction:row;padding:0 env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);border-right:0;border-top:1px solid var(--line-soft)}
   .gnav-item[aria-selected="true"]::before{left:22%;right:22%;top:0;bottom:auto;width:auto;height:3px;border-radius:0 0 2px 2px}
@@ -62,12 +64,12 @@ h1{font-family:var(--serif);font-size:30px;font-weight:600;letter-spacing:-.01em
 h2{font-size:18px;font-weight:700;margin:0 0 10px}
 h3{font-size:16px;font-weight:700;margin:0}
 .lead{color:var(--muted);margin:-10px 0 18px}
-input,select{font-size:14.5px;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:4px;padding:7px 9px;min-width:0}
+input,select{font-size:14.5px;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:6px;padding:7px 9px;min-width:0}
 input:focus,select:focus{border-color:var(--brand);outline:none;box-shadow:0 0 0 2px var(--brand-soft)}
 label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:700;min-width:0}
 label.f input,label.f select{width:100%;font-weight:400}
-.btn{font-size:14px;font-weight:700;border:1px solid var(--line);background:var(--soft);color:var(--ink);padding:8px 14px;border-radius:4px;cursor:pointer;white-space:nowrap}
-.btn:hover{background:#ebeced}
+.btn{font-size:14px;font-weight:600;border:1px solid var(--line);background:#fff;color:var(--ink);padding:8px 14px;border-radius:6px;cursor:pointer;white-space:nowrap;transition:background .12s,border-color .12s}
+.btn:hover{background:var(--soft);border-color:#b5bcc1}
 .btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
 .btn.primary:hover{background:var(--brand-dark)}
 .btn.danger{color:var(--bad);background:#fff}
@@ -83,7 +85,7 @@ label.f input,label.f select{width:100%;font-weight:400}
 .chip.warn{background:var(--warn-soft);color:var(--warn)}
 .chip.bad{background:var(--bad-soft);color:var(--bad)}
 .chip.none{background:var(--soft);color:var(--muted)}
-.box{border:1px solid var(--line-soft);border-radius:6px;padding:16px;background:#fff}
+.box{border:1px solid var(--line-soft);border-radius:8px;padding:18px;background:#fff}
 .side{display:flex;flex-direction:column;gap:16px;min-width:0}
 .two{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;align-items:start}
 @media (max-width:1000px){.two{grid-template-columns:minmax(0,1fr)}}
@@ -95,22 +97,35 @@ dl.kv dd{margin:0;font-weight:700;text-align:right}
 .semsel{display:flex;gap:10px;flex-wrap:wrap}
 .semsel label{flex-direction:row;align-items:center;gap:8px}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px}
-.ccard{border:1px solid var(--line-soft);border-radius:6px;overflow:hidden;background:#fff;display:flex;flex-direction:column}
-.ccard:hover{border-color:var(--line)}
-.ccard-top{position:relative;height:auto;min-height:64px;border:0;border-bottom:1px solid var(--line-soft);padding:16px 14px 12px;cursor:pointer;background:var(--soft);display:flex;align-items:flex-end;justify-content:space-between;gap:8px;width:100%;text-align:left}
-.ccard-top:hover{background:#eceef0}
-.ccard-code{color:var(--ink);font-family:var(--serif);font-size:20px;font-weight:600;letter-spacing:-.01em;line-height:1}
-.ccard-grade{background:#fff;border:1px solid var(--line-soft);color:var(--ink);font-family:var(--serif);font-weight:600;font-size:16px;border-radius:4px;padding:2px 8px;font-variant-numeric:lining-nums tabular-nums}
-.ccard-grade.empty{font-family:var(--f);font-weight:600;font-size:12px;color:var(--muted)}
-.ccard-body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
-.ccard-title{font-size:15.5px;font-weight:600;color:var(--link);line-height:1.35}
-.ccard-meta{font-size:13px;color:var(--muted)}
-.ccard-row{display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:6px;font-size:13px}
-.ccard-row select{flex:1}
 .hint{align-self:flex-start;background:var(--brand-soft);color:var(--brand);border:0;border-radius:4px;font-size:12.5px;font-weight:700;padding:4px 8px;cursor:pointer}
 .todo{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:14px}
 .todo li{display:flex;gap:8px;align-items:flex-start}
 .todo li::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--brand);margin-top:7px;flex:0 0 auto}
+
+.ccard{border:1px solid var(--line-soft);border-radius:8px;background:#fff;display:flex;flex-direction:column;transition:border-color .15s,box-shadow .15s}
+.ccard:hover{border-color:var(--line);box-shadow:0 1px 2px rgba(34,48,58,.06),0 4px 12px rgba(34,48,58,.05)}
+.ccard-body{padding:16px 16px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+.ccard-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:2px}
+.ccard-code{font-size:12.5px;font-weight:600;color:var(--muted);letter-spacing:.02em}
+.ccard-grade{font-family:var(--serif);font-weight:600;font-size:18px;line-height:1;color:var(--ink);font-variant-numeric:lining-nums tabular-nums}
+.ccard-grade.empty{font-family:var(--f);font-weight:500;font-size:12px;color:var(--muted);background:var(--soft);border-radius:999px;padding:3px 9px}
+.ccard-title{font-size:16px;font-weight:600;color:var(--ink);line-height:1.35}
+.ccard-title:hover{color:var(--brand)}
+.ccard-meta{font-size:13px;color:var(--muted)}
+.ccard-foot{border-top:1px solid var(--line-soft);padding:10px 16px 12px;display:flex;flex-direction:column;gap:8px}
+.ccard-row{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+.ccard-row select{flex:1}
+.ccard-open{align-self:flex-start;background:none;border:0;padding:0;font:inherit;font-size:13.5px;font-weight:600;color:var(--brand);cursor:pointer}
+.ccard-open:hover{text-decoration:underline}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--line-soft);border-radius:8px;background:#fff;margin-bottom:24px}
+.stat{padding:16px 18px;min-width:0}
+.stat+.stat{border-left:1px solid var(--line-soft)}
+.stat .k{font-size:13px;color:var(--muted)}
+.stat .v{font-family:var(--serif);font-size:30px;font-weight:600;margin-top:4px;line-height:1.15;font-variant-numeric:lining-nums tabular-nums}
+.stat .v .of{font-family:var(--f);font-size:13px;font-weight:400;color:var(--muted);margin-left:6px}
+.stat .v.v-text{font-size:19px;line-height:1.3;margin-top:8px}
+.stat .v.v-chip{font-family:var(--f);font-size:inherit;margin-top:8px}
+@media (max-width:760px){.stats{grid-template-columns:1fr 1fr}.stat:nth-child(3){border-left:0}.stat:nth-child(n+3){border-top:1px solid var(--line-soft)}.stat .v{font-size:26px}}
 
 /* grades */
 .gtable-wrap{overflow-x:auto;border-top:1px solid var(--line)}
@@ -154,13 +169,9 @@ details.box[open]>summary{margin-bottom:12px}
 .adv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
 /* gwa */
-.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
-@media (max-width:760px){.stats{grid-template-columns:1fr 1fr}}
-.stat .k{font-size:13px;color:var(--muted)}
-.stat .v{font-family:var(--serif);font-size:30px;font-weight:600;margin-top:2px;line-height:1.15;font-variant-numeric:lining-nums tabular-nums}
 .opts{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:14px;font-size:14px}
 .opts label{display:flex;gap:8px;align-items:center}
-details.sem{border:1px solid var(--line-soft);border-radius:6px;margin-bottom:12px;background:#fff}
+details.sem{border:1px solid var(--line-soft);border-radius:8px;overflow:hidden;margin-bottom:12px;background:#fff}
 details.sem>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;padding:13px 16px}
 details.sem>summary::before{content:"▸";color:var(--muted);transition:transform .15s}
 details.sem[open]>summary::before{transform:rotate(90deg)}
@@ -214,44 +225,42 @@ table.eq td{padding:6px 8px;border-bottom:1px solid var(--line-soft)}
   table.gt .num{width:72px}
   table.gt th,table.gt td{padding:8px 6px}
   table.gt .x{width:30px}
-  .ccard-top{min-height:52px;padding:12px}
-  .ccard-code{font-size:18px}
   .grp-row .link{margin-left:0}
 }
 /* erp class record */
 .srcbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:-6px 0 16px}
-.seg2{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.seg2{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
 .seg2 button{background:#fff;border:0;padding:8px 14px;font-size:14px;font-weight:700;color:var(--muted);cursor:pointer}
 .seg2 button+button{border-left:1px solid var(--line)}
 .seg2 button[aria-pressed="true"]{background:var(--brand);color:#fff}
 .erp-view{min-width:0;display:flex;flex-direction:column;gap:20px}
-.erp-block h2{font-size:15px;text-transform:uppercase;letter-spacing:.03em;color:var(--brand);margin:0 0 8px}
+.erp-block h2{font-size:17px;color:var(--ink);margin:0 0 8px}
 .erp-title{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
 .erp-title h2{margin:0}
-table.erp-info{width:100%;border-collapse:collapse;font-size:14px;background:#fffde8}
-table.erp-info th{text-align:left;font-weight:400;padding:5px 10px;width:42%;border-bottom:2px solid #fff;vertical-align:middle}
-table.erp-info td{padding:4px 8px;border-bottom:2px solid #fff;font-style:italic}
-table.erp-info td input{width:100%;background:transparent;border:1px solid transparent;font-style:italic;font-weight:700;color:#3d3a2a;padding:4px 6px}
-table.erp-info .stype{font-weight:700;color:#3d3a2a;padding-left:6px}
-table.erp-info td input:hover{border-color:#e6dfb4}
+table.erp-info{width:100%;border-collapse:collapse;font-size:14px;background:#fff;border:1px solid var(--line-soft);border-radius:8px;overflow:hidden}
+table.erp-info th{text-align:left;font-weight:400;color:var(--muted);padding:7px 14px;width:38%;border-bottom:1px solid var(--line-soft);vertical-align:middle;background:var(--soft)}
+table.erp-info td{padding:4px 10px;border-bottom:1px solid var(--line-soft)}
+table.erp-info td input{width:100%;background:transparent;border:1px solid transparent;font-weight:600;color:var(--ink);padding:5px 6px}
+table.erp-info .stype{font-weight:600;color:var(--ink);padding-left:6px}
+table.erp-info td input:hover{border-color:var(--line)}
 table.erp-info td input:focus{background:#fff;border-color:var(--brand)}
-.erp-wrap{overflow-x:auto;border:1px solid #cfd2d4}
+.erp-wrap{overflow-x:auto;border:1px solid var(--line-soft);border-radius:8px}
 table.erp{border-collapse:collapse;font-size:12.5px;min-width:100%}
-table.erp thead th{background:#4b4f53;color:#fff;font-size:10.5px;font-weight:700;text-transform:uppercase;text-align:center;padding:6px 8px;border:1px solid #6b6f73;line-height:1.25}
-table.erp thead th.grp{letter-spacing:.06em}
+table.erp thead th{background:var(--soft);color:var(--ink);font-size:12px;font-weight:600;text-align:center;padding:7px 8px;border:1px solid var(--line-soft);line-height:1.25}
+table.erp thead th.grp{font-size:13px;background:#eceef0}
 table.erp thead th.colh{white-space:nowrap}
 table.erp th.name,table.erp td.name{min-width:120px;text-align:left}
-table.erp td{border:1px solid #cfd2d4;padding:4px;text-align:center;font-variant-numeric:tabular-nums}
+table.erp td{border:1px solid var(--line-soft);padding:4px;text-align:center;font-variant-numeric:tabular-nums}
 table.erp td input{width:62px;text-align:center;padding:6px 4px;font-size:14px}
-table.erp td.out{background:#f7f7f7;font-weight:700;padding:6px 10px;white-space:nowrap}
+table.erp td.out{background:var(--soft);font-weight:700;padding:6px 10px;white-space:nowrap}
 table.erp td.g{color:var(--brand);font-size:15px}
 table.erp th input.lbl{width:96px;font-size:12px;padding:3px 5px;text-transform:none}
 table.erp th input.mxi{width:52px;font-size:12px;padding:3px 4px;text-align:center}
-table.erp th .mx{display:inline-flex;align-items:center;gap:3px;margin-left:3px;color:#fff}
-table.erp th .rm{color:#fff;font-size:15px;padding:0 4px}
-.erp-add{margin-top:5px;background:#fff;color:var(--brand);border:0;border-radius:3px;font-size:10.5px;font-weight:700;padding:3px 7px;cursor:pointer;text-transform:none}
+table.erp th .mx{display:inline-flex;align-items:center;gap:3px;margin-left:3px;color:var(--muted)}
+table.erp th .rm{color:var(--muted);font-size:15px;padding:0 4px}
+.erp-add{margin-top:5px;background:#fff;color:var(--brand);border:1px solid var(--line);border-radius:3px;font-size:10.5px;font-weight:700;padding:3px 7px;cursor:pointer;text-transform:none}
 table.erp-sum{border-collapse:collapse;font-size:13.5px;min-width:100%}
-table.erp-sum th{background:#4b4f53;color:#fff;font-size:11px;text-transform:uppercase;padding:7px 10px;text-align:left;white-space:nowrap}
+table.erp-sum th{background:var(--soft);color:var(--ink);font-size:12.5px;font-weight:600;padding:8px 10px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--line-soft)}
 table.erp-sum td{border-bottom:1px solid var(--line-soft);padding:7px 10px;font-variant-numeric:tabular-nums}
 /* first-run setup */
 .onboard{min-height:100vh;background:var(--page);padding-block:48px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
@@ -371,7 +380,7 @@ function normalize(raw){
   if(!s.subjects.some(x=>x.id===s.cur))s.cur=s.subjects[0].id;
   return s;
 }
-function setSync(t){const el=document.getElementById('syncState');if(el)el.textContent=t}
+function setSync(t){const el=document.getElementById('syncState');if(!el)return;el.textContent=t;el.dataset.s=/Not saved|ended|Offline/.test(t)?'bad':/Saving/.test(t)?'busy':/device only/.test(t)?'local':'ok'}
 function save(){
   try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
   if(!API||!USER)return;
@@ -585,11 +594,14 @@ function renderMine(){
     const elec=/^ELECTIVE/.test(x.slot)?`<select id="el-m-${x.slot}" data-g="e.${x.slot}" aria-label="Choose ${esc(x.slot)}">${electOptions(S.gwa.elect[x.slot]||'')}</select>`:'';
     const titleLine=x.pending?`${PROG.electLabel} (choose below)`:esc(x.title);
     return `<article class="ccard">
-      <button class="ccard-top" data-act="open-sub" data-code="${esc(x.code)}" data-name="${esc(x.title)}" data-pending="${x.pending?1:''}" aria-label="Open grades for ${esc(x.code)}"><span class="ccard-code">${esc(x.code)}</span>${badge}</button>
       <div class="ccard-body">
+        <div class="ccard-head"><span class="ccard-code">${esc(x.code)}</span>${badge}</div>
         <button class="link ccard-title" data-act="open-sub" data-code="${esc(x.code)}" data-name="${esc(x.title)}" data-pending="${x.pending?1:''}">${titleLine}</button>
         <div class="ccard-meta">${x.units} units</div>${elec}${hint}
+      </div>
+      <div class="ccard-foot">
         <label class="ccard-row" for="m-${x.slot}">Final grade <select id="m-${x.slot}" data-g="g.${x.slot}">${gradeOptions(sel)}</select></label>
+        <button class="ccard-open" data-act="open-sub" data-code="${esc(x.code)}" data-name="${esc(x.title)}" data-pending="${x.pending?1:''}" aria-label="Open grades for ${esc(x.code)}">Open grades</button>
       </div></article>`}).join('');
   const c=gwaCalc(rowsOf(CUR[semIdx()]));
   const todo=list.filter(x=>!S.gwa.grades[x.slot]).map(x=>`<li><button class="link" data-act="open-sub" data-code="${esc(x.code)}" data-name="${esc(x.title)}" data-pending="${x.pending?1:''}">${x.pending?'Choose your '+esc(PROG.electLabel.replace(/ Elective$/,'')+' elective'):'Enter a grade for '+esc(x.code)}</button></li>`).join('');
@@ -598,13 +610,16 @@ function renderMine(){
       <div class="semsel">
         <label class="f" for="selTerm">Year and term<select id="selTerm">${CUR.map((t,i)=>`<option value="${i}"${semIdx()===i?' selected':''}>${esc(termName(t))}</option>`).join('')}</select></label>
       </div></div>
-    <p class="lead">Click a subject to open its grades, or pick the final grade if you already know it.</p>
+    <p class="lead">Open a subject to compute its grade from your scores, or pick the final grade if you already know it.</p>
+    <div class="stats">
+      <div class="stat"><div class="k">Semestral GWA</div><div class="v">${c.gwa==null?'—':c.gwa.toFixed(3)}</div></div>
+      <div class="stat"><div class="k">Subjects graded</div><div class="v">${list.length-c.missing}<span class="of">of ${list.length}</span></div></div>
+      <div class="stat"><div class="k">Units counted</div><div class="v">${c.units}</div></div>
+      <div class="stat"><div class="k">Honors</div><div class="v v-chip">${semStatus(c)}</div></div>
+    </div>
     <div class="two">
       <div class="cards">${cards}</div>
       <aside class="side">
-        <section class="box"><h2>${esc(semLabel())}</h2>
-          <dl class="kv"><dt>Semestral GWA</dt><dd>${c.gwa==null?'—':c.gwa.toFixed(3)}</dd><dt>Units counted</dt><dd>${c.units}</dd><dt>Subjects graded</dt><dd>${list.length-c.missing} of ${list.length}</dd></dl>
-          <div style="margin-top:12px">${semStatus(c)}</div></section>
         <section class="box"><h2>To do</h2>${todo?`<ul class="todo">${todo}</ul>`:'<p class="note" style="margin:0">All subjects have a grade.</p>'}</section>
       </aside>
     </div>
@@ -714,10 +729,10 @@ function renderGWA(){
   document.getElementById('panel-gwa').innerHTML=`
     <div class="page-head"><h1>General Weighted Average</h1></div>
     <div class="stats">
-      <div class="box stat"><div class="k">Cumulative GWA</div><div class="v" id="gAll">—</div></div>
-      <div class="box stat"><div class="k">Units earned</div><div class="v"><span id="gUnits">0</span> <span class="small muted" style="font-weight:400">of ${PROG.total}</span></div></div>
-      <div class="box stat"><div class="k">Latin honors</div><div class="v" id="gLatin" style="font-size:18px">—</div></div>
-      <div class="box stat"><div class="k">Subjects graded</div><div class="v" id="gCount">0</div></div>
+      <div class="stat"><div class="k">Cumulative GWA</div><div class="v" id="gAll">—</div></div>
+      <div class="stat"><div class="k">Units earned</div><div class="v"><span id="gUnits">0</span><span class="of">of ${PROG.total}</span></div></div>
+      <div class="stat"><div class="k">Latin honors</div><div class="v v-text" id="gLatin">—</div></div>
+      <div class="stat"><div class="k">Subjects graded</div><div class="v" id="gCount">0</div></div>
     </div>
     <div class="opts">
       <label><input type="checkbox" id="optNstp" data-g="nstp"${S.gwa.nstp?' checked':''}> Count CWTS (NSTP) in the GWA</label>
