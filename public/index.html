@@ -203,6 +203,9 @@ table.eq td{padding:6px 8px;border-bottom:1px solid var(--line-soft)}
 .auth-tabs button[aria-selected="true"]{color:var(--brand);border-bottom-color:var(--brand)}
 #authForm{display:flex;flex-direction:column;gap:14px;padding:20px 24px 24px}
 #authForm input{padding:10px 11px;font-size:15px}
+.auth-guest{border-top:1px solid var(--line-soft);padding:18px 24px 22px;display:flex;flex-direction:column;gap:2px}
+.auth-guest .btn{width:100%}
+.auth-guest .note{text-align:center}
 .auth-err{min-height:1.2em;font-size:13.5px;color:var(--bad)}
 .auth-foot{font-size:12px;color:var(--muted);text-align:center;margin:14px 0 0}
 @media (max-width:600px){
@@ -297,6 +300,10 @@ table.erp-sum td{border-bottom:1px solid var(--line-soft);padding:7px 10px;font-
         <button class="btn primary" id="authSubmit" type="submit">Log in</button>
         <p class="note signup-only" hidden>Use at least 8 characters for your password.</p>
       </form>
+      <div class="auth-guest">
+        <button class="btn" id="authGuest" type="button">Continue without an account</button>
+        <p class="note">Your grades are saved on this device only. You can sign up later and keep them.</p>
+      </div>
     </div>
     <p class="auth-foot">Student-made tool. Not an official HAU system.</p>
   </div>
@@ -347,7 +354,10 @@ const PNAMES=['Prelim','Midterm','Finals'];
 const KEY_BASE='hau-grade-calc-v1';
 function blankPeriod(mode){return {mode:mode||'itemized',cs:'',ex:'',items:[{n:'',s:'',m:''}],lec:{s:'',m:''},lab:{s:'',m:''},method:'raw',lecW:'50'}}
 function blankSubject(){return ensureErp({id:'s'+Date.now()+Math.floor(Math.random()*1e4),code:'',name:'New subject',csW:'65',exW:'35',pass:'50',round:'trunc',periods:[blankPeriod(),blankPeriod(),blankPeriod()]})}
-let PENDING_PROGRAM=null,KEY=KEY_BASE,S=null,API=false,USER=null,syncTimer=null;
+let PENDING_PROGRAM=null,KEY=KEY_BASE,S=null,API=false,USER=null,GUEST=false,syncTimer=null;
+const GUEST_KEY=KEY_BASE+':guest',GUEST_FLAG='hsg-guest';
+function setGuestFlag(on){try{on?localStorage.setItem(GUEST_FLAG,'1'):localStorage.removeItem(GUEST_FLAG)}catch(e){}}
+function guestFlag(){try{return localStorage.getItem(GUEST_FLAG)==='1'}catch(e){return false}}
 function readLocal(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
 function normalize(raw){
   let s=raw&&typeof raw==='object'?raw:{};
@@ -738,7 +748,9 @@ function renderAcct(){
   const prof=USER?`<dl class="kv"><dt>Name</dt><dd>${esc(USER.name)}</dd><dt>Student number</dt><dd>${esc(USER.studentNumber)}</dd></dl>
       <p class="note">Your grades are saved to your account automatically.</p>
       <div class="btnrow"><button class="btn" data-act="logout">Log out</button></div>`
-    :`<p style="margin:0">You're not signed in. Your grades are saved on this device only.</p>`;
+    :`<p style="margin:0">You're using HAU SOC Grader without an account. Your grades are saved on this device only.</p>
+      ${API?`<p class="note">Sign up to keep them in your account and open them on any device. Your current grades come with you.</p>
+      <div class="btnrow"><button class="btn primary" data-act="guest-signup">Sign up</button><button class="btn" data-act="guest-login">Log in</button></div>`:''}`;
   document.getElementById('panel-acct').innerHTML=`
     <div class="page-head"><h1>Account</h1></div>
     <div class="acct">
@@ -967,6 +979,7 @@ root.addEventListener('click',e=>{
     if(!slot&&ELECT.some(x=>x[0]===code)){const free=CUR.flatMap(t=>t.c).map(c=>c[0]).filter(c=>/^ELECTIVE/.test(c)).find(k=>!S.gwa.elect[k]);if(free){S.gwa.elect[free]=code;slot=free}}
     if(!slot){m.textContent=code?`${code} isn't in your program's curriculum. Check the course code in Settings.`:'Add a course code in Settings first.';return}
     S.gwa.grades[slot]=g.toFixed(2);save();renderMine();renderGWA();m.textContent=`Saved ${g.toFixed(2)} as your ${code} final grade.`;return}
+  if(a==='guest-signup'||a==='guest-login'){showAuth(a==='guest-signup'?'signup':'login');return}
   if(a==='logout'){clearTimeout(syncTimer);(async()=>{try{await pushData()}catch(x){}try{await fetch('api/logout',{method:'POST',credentials:'same-origin'})}catch(x){}location.reload()})();return}
   if(a==='export'){const blob=new Blob([JSON.stringify({app:'hau-soc-grader',version:1,data:S},null,1)],{type:'application/json'});const u=URL.createObjectURL(blob);const l=document.createElement('a');l.href=u;l.download='hau-soc-grader-backup.json';document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);return}
   if(a==='import'){document.getElementById('importFile').click();return}
@@ -989,17 +1002,19 @@ function start(){
   if(!S.onboarded){showOnboard();return}
   document.getElementById('onboard').hidden=true;document.getElementById('app').hidden=false;
   renderAll();setTab(S.tab||'mine');
-  if(!API)setSync('Saved on this device');
+  if(!API||GUEST)setSync('Saved on this device only');
 }
 async function loadAccount(){
   KEY=KEY_BASE+':'+USER.studentNumber.toUpperCase();
   let data=null;
   try{const r=await fetch('api/data',{credentials:'same-origin'});if(r.ok)data=(await r.json()).data}catch(e){}
-  if(!data){const cached=readLocal(KEY)||readLocal(KEY_BASE);S=normalize(cached);start();if(cached)pushData();return}
+  GUEST=false;setGuestFlag(false);
+  if(!data){const cached=readLocal(KEY)||readLocal(GUEST_KEY)||readLocal(KEY_BASE);S=normalize(cached);start();if(cached)pushData();return}
   S=normalize(data);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
   start();setSync('Saved to your account');
 }
-function showAuth(mode){document.getElementById('app').hidden=true;document.getElementById('auth').hidden=false;setAuthMode(mode||'login')}
+function startGuest(){GUEST=true;USER=null;KEY=GUEST_KEY;setGuestFlag(true);S=normalize(readLocal(GUEST_KEY));start()}
+function showAuth(mode){document.getElementById('app').hidden=true;document.getElementById('onboard').hidden=true;window.scrollTo(0,0);document.getElementById('auth').hidden=false;setAuthMode(mode||'login')}
 function setAuthMode(m){
   const f=document.getElementById('authForm');f.dataset.mode=m;
   document.getElementById('authLogin').setAttribute('aria-selected',m==='login');
@@ -1024,12 +1039,13 @@ document.getElementById('authForm').addEventListener('submit',async e=>{
 });
 document.getElementById('authLogin').addEventListener('click',()=>setAuthMode('login'));
 document.getElementById('authSignup').addEventListener('click',()=>setAuthMode('signup'));
+document.getElementById('authGuest').addEventListener('click',startGuest);
 async function boot(){
   try{
     const r=await fetch('api/me',{credentials:'same-origin'});
     if(!(r.headers.get('content-type')||'').includes('application/json'))throw new Error('no api');
     API=true;
-    if(r.ok){USER=(await r.json()).user;await loadAccount()}else showAuth('login');
+    if(r.ok){USER=(await r.json()).user;await loadAccount()}else if(guestFlag())startGuest();else showAuth('login');
   }catch(e){API=false;S=normalize(readLocal(KEY_BASE));start()}
 }
 boot();
