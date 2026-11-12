@@ -46,7 +46,7 @@ button,input,select{font-family:inherit}
 .sync{margin-left:auto;font-size:12.5px;color:var(--muted);white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
 .sync:not(:empty)::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--good)}
 .sync[data-s=busy]::before{background:var(--line)}.sync[data-s=local]::before{background:var(--muted)}.sync[data-s=bad]::before{background:var(--bad)}
-.content{flex:1;width:100%;max-width:1240px;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.content{flex:1;width:100%;max-width:1320px;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 @media (max-width:760px){
   .gnav{top:auto;width:auto;right:0;height:auto;flex-direction:row;padding:0 env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);border-right:0;border-top:1px solid var(--line-soft)}
   .gnav-item[aria-selected="true"]::before{left:22%;right:22%;top:0;bottom:auto;width:auto;height:3px;border-radius:0 0 2px 2px}
@@ -128,45 +128,85 @@ dl.kv dd{margin:0;font-weight:700;text-align:right}
 @media (max-width:760px){.stats{grid-template-columns:1fr 1fr}.stat:nth-child(3){border-left:0}.stat:nth-child(n+3){border-top:1px solid var(--line-soft)}.stat .v{font-size:26px}}
 
 /* grades */
-.gtable-wrap{overflow-x:auto;border-top:1px solid var(--line)}
+.course-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px 24px;flex-wrap:wrap}
+.course-eyebrow{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--brand);margin:0 0 6px}
+.course-head .lead{margin:6px 0 0}
+.course-pick{min-width:min(100%,340px)}
+.course-pick select{padding:9px 10px}
+.srcbar{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;margin:18px 0 22px;padding:12px 0;border-block:1px solid var(--line-soft)}
+.srcbar .hint-txt{margin-left:auto;font-size:13px;color:var(--muted)}
+.seg2{display:inline-flex;background:var(--soft);border-radius:8px;padding:3px;gap:2px}
+.seg2 button{background:transparent;border:0;border-radius:6px;padding:7px 14px;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer;transition:background .12s,color .12s}
+.seg2 button:hover{color:var(--ink)}
+.seg2 button[aria-pressed="true"]{background:#fff;color:var(--brand);box-shadow:0 1px 2px rgba(34,48,58,.12),0 0 0 1px rgba(34,48,58,.06)}
+.course-grid{grid-template-columns:minmax(0,1fr) 288px}
+@media (max-width:1000px){.course-grid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:600px){.srcbar .hint-txt{margin-left:0;width:100%}.card{padding:16px 14px}.ei-row,.ei-row.wide{grid-template-columns:minmax(0,1fr);gap:4px}}
+.card{border:1px solid var(--line-soft);border-radius:10px;background:#fff;padding:18px 20px}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+.card-head h2{margin:0;font-size:16.5px}
+.card-sub{font-size:13px;color:var(--muted);margin:2px 0 14px}
+.gtable-wrap{overflow-x:auto;border:1px solid var(--line-soft);border-radius:10px;background:#fff}
 table.gt{width:100%;border-collapse:collapse;font-size:14.5px;min-width:560px}
-table.gt th,table.gt td{padding:9px 10px;border-bottom:1px solid var(--line-soft);text-align:left;vertical-align:middle}
-table.gt thead th{font-size:14px;font-weight:700;border-bottom:1px solid var(--line)}
+table.gt th,table.gt td{padding:7px 10px;border-bottom:1px solid var(--line-soft);text-align:left;vertical-align:middle}
+table.gt thead th{font-size:12.5px;font-weight:600;color:var(--muted);background:var(--soft);border-bottom:1px solid var(--line-soft)}
 table.gt .num{text-align:right;width:92px}
 table.gt .per{width:118px}
 table.gt .x{width:40px;text-align:center}
-table.gt td input,table.gt td select{border-color:transparent;background:transparent;width:100%;padding:6px 7px}
+table.gt td input,table.gt td select{border-color:var(--line-soft);background:#fff;width:100%;padding:6px 8px}
 table.gt td input:hover,table.gt td select:hover{border-color:var(--line)}
-table.gt td input:focus,table.gt td select:focus{border-color:var(--brand);background:#fff}
+table.gt td input:focus,table.gt td select:focus{border-color:var(--brand)}
 table.gt td.num input{text-align:right}
-table.gt tr.grp th{background:var(--soft);font-size:15px;padding-block:11px;border-bottom:1px solid var(--line)}
+table.gt tbody+tbody tr.grp th{border-top:6px solid var(--soft)}
+table.gt tr.grp th{background:#fff;font-size:15px;padding-block:12px;border-bottom:1px solid var(--line-soft)}
 .grp-row{display:flex;align-items:center;gap:8px 16px;flex-wrap:wrap}
 .grp-stats{font-weight:400;font-size:13px;color:var(--muted);display:flex;gap:4px 14px;flex-wrap:wrap;align-items:center}
 .grp-stats b{color:var(--ink)}
-.grp-row .link{margin-left:auto;font-size:13px;font-weight:400}
-tr.exrow td:first-child{font-weight:700}
-tr.exrow td{background:#fcfcfc}
+.grp-row .link{margin-left:auto;font-size:13px;font-weight:600}
+tr.exrow td:first-child{font-weight:600}
+tr.exrow td{background:#fafbfb}
 tr.addrow td{padding-block:8px}
+tr.addrow .link{font-size:13.5px;font-weight:600;border:1px dashed var(--line);border-radius:6px;padding:5px 10px}
+tr.addrow .link:hover{text-decoration:none;border-color:var(--brand);background:var(--brand-soft)}
+.per-name{background:none;border:0;padding:0;font-family:var(--serif);font-weight:600;font-size:17px;color:var(--ink);cursor:pointer}
+.per-tog{flex:0 0 auto;width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;background:#fff;border:1px solid var(--line);border-radius:8px;color:var(--ink);cursor:pointer;transition:background .12s,border-color .12s}
+.per-tog:hover{background:var(--soft);border-color:#b5bcc1}
+.per-tog svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transform:rotate(180deg);transition:transform .15s}
+.per-tog[aria-expanded="false"] svg{transform:none}
+.grp-row .link+.per-tog{margin-left:4px}
+.grp-row .grp-stats+.per-tog{margin-left:auto}
+tbody.closed tr.grp th{border-bottom:0}
 .rm{background:none;border:0;color:var(--muted);font-size:18px;cursor:pointer;line-height:1;padding:4px 8px;border-radius:4px}
 .rm:hover{color:var(--bad);background:var(--bad-soft)}
-.sum-terms{display:flex;flex-direction:column}
-.sum-row{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line-soft);font-size:14px}
-.sum-row b{font-size:16px}
-.sum-row small{color:var(--muted);margin-left:6px;font-weight:400}
-.sum-final{display:flex;justify-content:space-between;align-items:baseline;padding-top:12px}
-.sum-final span{font-weight:700}
-.sum-final b{font-family:var(--serif);font-size:38px;font-weight:600;line-height:1;color:var(--brand);font-variant-numeric:lining-nums tabular-nums}
-.ladder{width:100%;border-collapse:collapse;font-size:14px}
-.ladder th{font-weight:700;text-align:left;padding:6px 4px;border-bottom:1px solid var(--line)}
-.ladder td{padding:6px 4px;border-bottom:1px solid var(--line-soft)}
+/* grade summary card */
+.gs-terms{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.gs-term{border:1px solid var(--line-soft);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.gs-term span{font-size:12.5px;color:var(--muted)}
+.gs-term b{font-family:var(--serif);font-size:22px;font-weight:600;line-height:1.1;font-variant-numeric:lining-nums tabular-nums}
+.gs-term small{font-size:12px;color:var(--muted)}
+.gs-final{display:flex;justify-content:space-between;align-items:center;gap:12px;border-radius:8px;padding:14px;background:var(--brand-soft)}
+.gs-final .gs-label{display:block;font-weight:700;font-size:14px}
+.gs-final .gs-sub{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+.gs-final b{font-family:var(--serif);font-size:40px;font-weight:600;line-height:1;color:var(--brand);font-variant-numeric:lining-nums tabular-nums}
+.gs-final.none{background:var(--soft)}
+.gs-final.none b{color:var(--line)}
+.gs-final.bad{background:var(--bad-soft)}.gs-final.bad b{color:var(--bad)}
+.side .btnrow .btn{flex:1}
+.ladder{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}
+.ladder th{font-weight:600;font-size:12.5px;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+.ladder td{padding:7px 8px;border-bottom:1px solid var(--line-soft);font-variant-numeric:tabular-nums}
+.ladder td:first-child{font-weight:600}
 .ladder td:last-child,.ladder th:last-child{text-align:right}
-.ladder tr.cur td{background:var(--brand-soft);font-weight:700;color:var(--brand)}
-details.box>summary{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between}
-details.box>summary::after{content:"+";font-weight:400;color:var(--muted)}
-details.box[open]>summary::after{content:"–"}
-details.box[open]>summary{margin-bottom:12px}
-.adv{display:flex;flex-direction:column;gap:10px}
+.ladder tr.cur td{background:var(--brand-soft);font-weight:700;color:var(--brand);border-bottom-color:transparent}
+.ladder tr.cur td:first-child{border-radius:6px 0 0 6px}.ladder tr.cur td:last-child{border-radius:0 6px 6px 0}
+details.box>summary{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details.box>summary::-webkit-details-marker{display:none}
+details.box>summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg) translate(-2px,-2px);transition:transform .15s}
+details.box[open]>summary::after{transform:rotate(-135deg) translate(-2px,-2px)}
+details.box[open]>summary{margin-bottom:14px}
+.adv{display:flex;flex-direction:column;gap:12px}
 .adv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.course-grid .box{border-radius:10px}
 
 /* gwa */
 .opts{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:14px;font-size:14px}
@@ -228,40 +268,50 @@ table.eq td{padding:6px 8px;border-bottom:1px solid var(--line-soft)}
   .grp-row .link{margin-left:0}
 }
 /* erp class record */
-.srcbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:-6px 0 16px}
-.seg2{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
-.seg2 button{background:#fff;border:0;padding:8px 14px;font-size:14px;font-weight:700;color:var(--muted);cursor:pointer}
-.seg2 button+button{border-left:1px solid var(--line)}
-.seg2 button[aria-pressed="true"]{background:var(--brand);color:#fff}
 .erp-view{min-width:0;display:flex;flex-direction:column;gap:20px}
-.erp-block h2{font-size:17px;color:var(--ink);margin:0 0 8px}
-.erp-title{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
-.erp-title h2{margin:0}
-table.erp-info{width:100%;border-collapse:collapse;font-size:14px;background:#fff;border:1px solid var(--line-soft);border-radius:8px;overflow:hidden}
-table.erp-info th{text-align:left;font-weight:400;color:var(--muted);padding:7px 14px;width:38%;border-bottom:1px solid var(--line-soft);vertical-align:middle;background:var(--soft)}
-table.erp-info td{padding:4px 10px;border-bottom:1px solid var(--line-soft)}
-table.erp-info td input{width:100%;background:transparent;border:1px solid transparent;font-weight:600;color:var(--ink);padding:5px 6px}
-table.erp-info .stype{font-weight:600;color:var(--ink);padding-left:6px}
-table.erp-info td input:hover{border-color:var(--line)}
-table.erp-info td input:focus{background:#fff;border-color:var(--brand)}
-.erp-wrap{overflow-x:auto;border:1px solid var(--line-soft);border-radius:8px}
+.erp-info{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:28px;margin:0}
+.ei-row{display:grid;grid-template-columns:minmax(0,42%) minmax(0,1fr);align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--line-soft);min-width:0}
+.ei-row.wide{grid-column:1/-1;grid-template-columns:minmax(0,calc(21% - 7px)) minmax(0,1fr)}
+.ei-row dt{font-size:13px;color:var(--muted)}
+.ei-row dd{margin:0;min-width:0;font-size:14px}
+.ei-row dd input{width:100%;background:#fafbfb;border:1px solid var(--line-soft);font-weight:600;color:var(--ink);padding:6px 9px}
+.ei-row dd input:hover{border-color:var(--line)}
+.ei-row dd input:focus{background:#fff;border-color:var(--brand)}
+.ei-row dd input::placeholder{font-weight:400;color:#9aa3a9}
+.ei-row .stype{font-weight:600;color:var(--ink)}
+@media (max-width:900px){.erp-info{grid-template-columns:minmax(0,1fr)}.ei-row.wide{grid-template-columns:minmax(0,42%) minmax(0,1fr)}}
+.erp-wrap{overflow-x:auto;border:1px solid var(--line-soft);border-radius:8px;background:#fff}
 table.erp{border-collapse:collapse;font-size:12.5px;min-width:100%}
-table.erp thead th{background:var(--soft);color:var(--ink);font-size:12px;font-weight:600;text-align:center;padding:7px 8px;border:1px solid var(--line-soft);line-height:1.25}
-table.erp thead th.grp{font-size:13px;background:#eceef0}
-table.erp thead th.colh{white-space:nowrap}
-table.erp th.name,table.erp td.name{min-width:120px;text-align:left}
-table.erp td{border:1px solid var(--line-soft);padding:4px;text-align:center;font-variant-numeric:tabular-nums}
-table.erp td input{width:62px;text-align:center;padding:6px 4px;font-size:14px}
-table.erp td.out{background:var(--soft);font-weight:700;padding:6px 10px;white-space:nowrap}
-table.erp td.g{color:var(--brand);font-size:15px}
+table.erp thead th{background:var(--soft);color:var(--ink);font-size:11.5px;font-weight:600;text-align:center;padding:7px 6px;border:1px solid var(--line-soft);line-height:1.25}
+table.erp thead th.grp{font-size:12px;letter-spacing:.06em;background:var(--brand-soft);color:var(--brand);font-weight:700}
+table.erp thead th.res{background:#eceef0;color:var(--ink);width:70px;min-width:66px}
+table.erp thead th.colh{font-weight:500;color:var(--muted);min-width:70px}
+table.erp.editing thead th.colh{white-space:nowrap}
+table.erp th.name,table.erp td.name{min-width:64px;text-align:left;position:sticky;left:0;z-index:1;background:#fff;box-shadow:1px 0 0 var(--line-soft)}
+table.erp thead th.name{background:var(--soft)}
+table.erp td{border:1px solid var(--line-soft);padding:8px 5px;text-align:center;font-variant-numeric:tabular-nums}
+table.erp td.name{font-weight:600;font-size:13px}
+table.erp td input{width:58px;text-align:center;padding:7px 4px;font-size:14px;font-weight:600;border-color:var(--line)}
+table.erp td input:placeholder-shown{background:#fafbfb}
+table.erp td input.over{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+table.erp .pe{border-right:2px solid var(--line)}
+table.erp td.out{background:#fafbfb;font-weight:600;padding:6px 6px;white-space:nowrap;color:var(--ink)}
+table.erp td.g{color:var(--brand);font-size:16px;font-family:var(--serif);background:var(--brand-soft)}
 table.erp th input.lbl{width:96px;font-size:12px;padding:3px 5px;text-transform:none}
 table.erp th input.mxi{width:52px;font-size:12px;padding:3px 4px;text-align:center}
 table.erp th .mx{display:inline-flex;align-items:center;gap:3px;margin-left:3px;color:var(--muted)}
 table.erp th .rm{color:var(--muted);font-size:15px;padding:0 4px}
-.erp-add{margin-top:5px;background:#fff;color:var(--brand);border:1px solid var(--line);border-radius:3px;font-size:10.5px;font-weight:700;padding:3px 7px;cursor:pointer;text-transform:none}
+.erp-add{margin-top:5px;background:#fff;color:var(--brand);border:1px dashed var(--brand);border-radius:4px;font-size:11px;font-weight:700;padding:3px 8px;cursor:pointer;text-transform:none}
+.erp-add:hover{background:var(--brand-soft)}
+.erp-over{font-size:13px;color:var(--bad);margin:8px 0 0}
 table.erp-sum{border-collapse:collapse;font-size:13.5px;min-width:100%}
-table.erp-sum th{background:var(--soft);color:var(--ink);font-size:12.5px;font-weight:600;padding:8px 10px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--line-soft)}
-table.erp-sum td{border-bottom:1px solid var(--line-soft);padding:7px 10px;font-variant-numeric:tabular-nums}
+table.erp-sum th{background:var(--soft);color:var(--muted);font-size:12px;font-weight:600;padding:9px 12px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--line-soft)}
+table.erp-sum td{border-bottom:1px solid var(--line-soft);padding:9px 12px;font-variant-numeric:tabular-nums}
+table.erp-sum tbody tr:last-child td{border-bottom:0}
+table.erp-sum td:first-child{font-weight:600;letter-spacing:.03em;font-size:12.5px}
+table.erp-sum td.g b{font-family:var(--serif);font-size:16px;color:var(--brand)}
+table.erp-sum tr.empty td{color:var(--muted)}
+table.erp-sum tr.empty td.g b{color:var(--muted);font-family:var(--f);font-size:13.5px}
 /* first-run setup */
 .onboard{min-height:100vh;background:var(--page);padding-block:48px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .ob-wrap{max-width:760px;margin:0 auto}
@@ -483,40 +533,44 @@ function erpHTML(s){
   const e=s.erp,ed=ERP_EDIT,i=s.info;
   const inp=(attr,val,extra)=>`<input ${attr} value="${esc(val)}"${extra||''}>`;
   const info=[
-    ['Class code',inp('id="iClass" data-info="classCode"',i.classCode,' placeholder="e.g. 2181"')],
-    ['Subject code',inp('id="iCode" data-k="sub.code"',s.code)],
-    ['Description / Title',inp('id="iName" data-k="sub.name"',s.name)],
-    ['Offered on',inp('id="iOff" data-info="offered"',i.offered,' placeholder="e.g. 20261S"')],
-    ['Section / Time / Days / Room',inp('id="iSec" data-info="section"',i.section,' placeholder="e.g. WD-301 12:00p-03:00p, M, SJH-703"')],
-    ['Faculty',inp('id="iFac" data-info="faculty"',i.faculty)],
-    ['Number of units',inp('id="iUnits" type="number" step="any" data-info="units"',i.units)],
-    ['Subject type',`<span class="stype">${subjectType(s.code)}</span> <span class="muted small">· usual split ${defaultShares(s.code).join('/')}</span>`],
-    ['Passing percent average',inp('id="iPass" type="number" step="any" data-k="sub.pass"',s.pass)],
-    ['Class standing share (%)',inp('id="iCsW" type="number" step="any" data-k="sub.csW"',s.csW)],
-    ['Major examination share (%)',inp('id="iExW" type="number" step="any" data-k="sub.exW"',s.exW)],
-  ].map(([k,v])=>`<tr><th scope="row">${k}</th><td>${v}</td></tr>`).join('')+
-  `<tr><th scope="row">Weights among major exams</th><td class="muted">Prelim, Midterm and Final exams count equally (33.33% each)</td></tr>`;
+    ['Class code','iClass',inp('id="iClass" data-info="classCode"',i.classCode,' placeholder="e.g. 2181"')],
+    ['Subject code','iCode',inp('id="iCode" data-k="sub.code"',s.code)],
+    ['Description / Title','iName',inp('id="iName" data-k="sub.name"',s.name),1],
+    ['Offered on','iOff',inp('id="iOff" data-info="offered"',i.offered,' placeholder="e.g. 20261S"')],
+    ['Faculty','iFac',inp('id="iFac" data-info="faculty"',i.faculty)],
+    ['Section / Time / Days / Room','iSec',inp('id="iSec" data-info="section"',i.section,' placeholder="e.g. WD-301 12:00p-03:00p, M, SJH-703"'),1],
+    ['Number of units','iUnits',inp('id="iUnits" type="number" step="any" data-info="units"',i.units)],
+    ['Subject type','',`<span class="stype">${subjectType(s.code)}</span> <span class="muted small">· usual split ${defaultShares(s.code).join('/')}</span>`],
+    ['Passing percent average','iPass',inp('id="iPass" type="number" step="any" data-k="sub.pass"',s.pass)],
+    ['Class standing share (%)','iCsW',inp('id="iCsW" type="number" step="any" data-k="sub.csW"',s.csW)],
+    ['Major examination share (%)','iExW',inp('id="iExW" type="number" step="any" data-k="sub.exW"',s.exW)],
+    ['Weights among major exams','','<span class="muted">Prelim, Midterm and Final exams count equally (33.33% each)</span>'],
+  ].map(([k,id,v,w])=>`<div class="ei-row${w?' wide':''}"><dt>${id?`<label for="${id}">${k}</label>`:k}</dt><dd>${v}</dd></div>`).join('');
   const n=e.cols.map(c=>c.length);
   const h1=PNAMES.map((p,k)=>`<th colspan="${n[k]+1}" class="grp">${p==='Finals'?'FINAL':p.toUpperCase()}</th>`).join('');
-  const h2=PNAMES.map((p,k)=>`<th colspan="${n[k]}">Class standing (${esc(s.csW)}%)${ed?`<br><button class="erp-add" data-act="erp-add" data-p="${k}">+ Add column</button>`:''}</th><th>Major exam (${esc(s.exW)}%)</th>`).join('');
+  const h2=PNAMES.map((p,k)=>`<th colspan="${n[k]}">Class standing (${esc(s.csW)}%)${ed?`<br><button class="erp-add" data-act="erp-add" data-p="${k}">+ Add column</button>`:''}</th><th class="pe">Major exam (${esc(s.exW)}%)</th>`).join('');
   const h3=e.cols.map((cols,k)=>cols.map((c,j)=>`<th class="colh">${ed?`<input class="lbl" id="ec${k}l${j}" data-erp="c.${k}.${j}.l" value="${esc(c.l)}" aria-label="Column name"><span class="mx">– <input class="mxi" id="ec${k}m${j}" type="number" step="any" data-erp="c.${k}.${j}.m" value="${esc(c.m)}" aria-label="Maximum score"></span>${cols.length>1?`<button class="rm" data-act="erp-del" data-p="${k}" data-j="${j}" aria-label="Remove column">×</button>`:''}`:`${esc(c.l||'Item')} – ${esc(c.m||'?')}`}</th>`).join('')+
-    `<th class="colh">${EXLABEL[k]} – ${ed?`<input class="mxi" id="ex${k}m" type="number" step="any" data-erp="x.${k}.m" value="${esc(e.ex[k].m)}" aria-label="Exam maximum">`:esc(e.ex[k].m||'?')}</th>`).join('');
+    `<th class="colh pe">${EXLABEL[k]} – ${ed?`<input class="mxi" id="ex${k}m" type="number" step="any" data-erp="x.${k}.m" value="${esc(e.ex[k].m)}" aria-label="Exam maximum">`:esc(e.ex[k].m||'?')}</th>`).join('');
   const cells=e.cols.map((cols,k)=>cols.map((c,j)=>`<td><input type="number" inputmode="decimal" step="any" id="ec${k}s${j}" data-erp="c.${k}.${j}.s" value="${esc(c.s)}" placeholder="–" aria-label="${PNAMES[k]} ${esc(c.l)} score"></td>`).join('')+
-    `<td><input type="number" inputmode="decimal" step="any" id="ex${k}s" data-erp="x.${k}.s" value="${esc(e.ex[k].s)}" placeholder="–" aria-label="${EXLABEL[k]} score"></td>`).join('');
-  return `<section class="erp-block">
-      <table class="erp-info"><tbody>${info}</tbody></table>
+    `<td class="pe"><input type="number" inputmode="decimal" step="any" id="ex${k}s" data-erp="x.${k}.s" value="${esc(e.ex[k].s)}" placeholder="–" aria-label="${EXLABEL[k]} score"></td>`).join('');
+  return `<section class="erp-block card">
+      <div class="card-head"><h2>Class information</h2></div>
+      <p class="card-sub">Copy these from the top of your ERP class record.</p>
+      <dl class="erp-info">${info}</dl>
     </section>
-    <section class="erp-block">
-      <div class="erp-title"><h2>Raw scores details</h2><button class="btn" data-act="erp-edit">${ed?'Done editing columns':'Edit columns'}</button></div>
-      <p class="note" style="margin:0 0 8px">${ed?'Name each column and set its maximum, like "Quiz – 60". Add or remove columns to match your ERP class record.':'Type your scores in the white boxes. Use <b>Edit columns</b> to match the columns on your ERP class record.'}</p>
-      <div class="erp-wrap"><table class="erp">
-        <thead><tr><th rowspan="3" class="name">Name</th>${h1}<th rowspan="3">Class standing average</th><th rowspan="3">Major exam average</th><th rowspan="3">Computed average</th><th rowspan="3">Transmuted value</th><th rowspan="3">Current grade</th></tr>
+    <section class="erp-block card">
+      <div class="card-head"><h2>Raw scores details</h2><button class="btn${ed?' primary':''}" data-act="erp-edit">${ed?'Done editing columns':'Edit columns'}</button></div>
+      <p class="card-sub">${ed?'Name each column and set its maximum, like "Quiz – 60". Add or remove columns to match your ERP class record.':'Type your scores in the boxes. Use <b>Edit columns</b> to match the columns on your ERP class record.'}</p>
+      <div class="erp-wrap"><table class="erp${ed?' editing':''}">
+        <thead><tr><th rowspan="3" class="name">Name</th>${h1}<th rowspan="3" class="res">Class standing average</th><th rowspan="3" class="res">Major exam average</th><th rowspan="3" class="res">Computed average</th><th rowspan="3" class="res">Transmuted value</th><th rowspan="3" class="res">Current grade</th></tr>
         <tr>${h2}</tr><tr>${h3}</tr></thead>
         <tbody><tr><td class="name">${esc(USER?USER.name:'You')}</td>${cells}<td class="out" id="erpCs">—</td><td class="out" id="erpMe">—</td><td class="out" id="erpComp">—</td><td class="out" id="erpTr">—</td><td class="out g" id="erpGr">—</td></tr></tbody>
       </table></div>
+      <p class="erp-over" id="erpOver" hidden>A score is higher than its column's maximum. Check the highlighted box.</p>
     </section>
-    <section class="erp-block">
-      <h2>Summary of grades</h2>
+    <section class="erp-block card">
+      <div class="card-head"><h2>Summary of grades</h2></div>
+      <p class="card-sub">Cumulative grade after each period.</p>
       <div class="erp-wrap"><table class="erp-sum"><thead><tr><th>Period</th><th>Class standing average</th><th>Major exam average</th><th>Computed average</th><th>Transmuted</th><th>Computed grade</th></tr></thead><tbody id="erpSum"></tbody></table></div>
       <p class="note">Averages are cumulative, the same way the ERP computes them: all class standing scores so far ÷ all their maximums, and the same for major exams.</p>
     </section>`;
@@ -528,7 +582,9 @@ function updateErp(){
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
   set('erpCs',last?f4(last.csA):'—');set('erpMe',last?f4(last.meA):'—');set('erpComp',last?f4(last.cum):'—');
   set('erpTr',last&&last.tr!=null?String(settle(last.tr,s.round)):'—');set('erpGr',last?gradeText(last.grade):'—');
-  document.getElementById('erpSum').innerHTML=R.map((r,k)=>`<tr><td>${PNAMES[k]==='Finals'?'FINAL':PNAMES[k].toUpperCase()}</td><td>${r.has?f4(r.csA):'—'}</td><td>${r.has?f4(r.meA):'—'}</td><td>${r.has?f4(r.cum):'—'}</td><td>${r.has&&r.tr!=null?settle(r.tr,s.round):'—'}</td><td><b>${r.has?gradeText(r.grade):'—'}</b></td></tr>`).join('');
+  document.getElementById('erpSum').innerHTML=R.map((r,k)=>`<tr class="${r.has&&r.grade!=null?'':'empty'}"><td>${PNAMES[k]==='Finals'?'FINAL':PNAMES[k].toUpperCase()}</td><td>${r.has?f4(r.csA):'—'}</td><td>${r.has?f4(r.meA):'—'}</td><td>${r.has?f4(r.cum):'—'}</td><td>${r.has&&r.tr!=null?settle(r.tr,s.round):'—'}</td><td class="g"><b>${r.has?gradeText(r.grade):'—'}</b></td></tr>`).join('');
+  let over=false;document.querySelectorAll('#panel-course input[data-erp$=".s"]').forEach(el=>{const q=el.dataset.erp.split('.');const m=num(q[0]==='c'?(s.erp.cols[+q[1]][+q[2]]||{}).m:s.erp.ex[+q[1]].m);const v=num(el.value);const bad=v!=null&&m>0&&v>m;el.classList.toggle('over',bad);if(bad){over=true;el.setAttribute('aria-invalid','true');el.title='Higher than the maximum ('+m+')'}else{el.removeAttribute('aria-invalid');el.removeAttribute('title')}});
+  const ov=document.getElementById('erpOver');if(ov)ov.hidden=!over;
 }
 function erpLadder(s){
   const e=s.erp,R=computeErp(s),P=num(s.pass)??50,wcs=num(s.csW)??65,wex=num(s.exW)??35;
@@ -634,7 +690,9 @@ function renderCourse(){
     (others.length?`<optgroup label="Other subjects">${others.map(x=>`<option value="id:${x.id}"${x.id===s.id?' selected':''}>${esc((x.code?x.code+' · ':'')+x.name)}</option>`).join('')}</optgroup>`:'');
   const cw=esc(s.csW),ew=esc(s.exW);
   const perOpts=j=>PNAMES.map((n,k)=>`<option value="${k}"${k===j?' selected':''}>${n}</option>`).join('');
+  const firstOpen=compute(s).findIndex(r=>r.term==null);
   const groups=s.periods.map((p,i)=>{
+    const closed=isClosed(p,i,firstOpen);
     let rows='';
     if(p.mode==='quick'){
       rows=`<tr><td>Class standing (from ERP)</td><td class="per">${PNAMES[i]}</td><td class="num"><input type="number" inputmode="decimal" step="any" id="q${i}cs" data-k="p.${i}.cs" value="${esc(p.cs)}" aria-label="${PNAMES[i]} class standing"></td><td class="num">${cw}</td><td class="x"></td></tr>
@@ -650,20 +708,22 @@ function renderCourse(){
         <tr class="exrow"><td>${PNAMES[i]} exam · Lecture</td><td class="per">${PNAMES[i]}</td><td class="num"><input type="number" inputmode="decimal" step="any" id="e${i}ls" data-k="p.${i}.lec.s" value="${esc(p.lec.s)}" placeholder="–" aria-label="Lecture exam score"></td><td class="num"><input type="number" inputmode="decimal" step="any" id="e${i}lm" data-k="p.${i}.lec.m" value="${esc(p.lec.m)}" aria-label="Lecture exam out of"></td><td class="x"></td></tr>
         <tr class="exrow"><td>${PNAMES[i]} exam · Laboratory</td><td class="per">${PNAMES[i]}</td><td class="num"><input type="number" inputmode="decimal" step="any" id="e${i}bs" data-k="p.${i}.lab.s" value="${esc(p.lab.s)}" placeholder="–" aria-label="Lab exam score"></td><td class="num"><input type="number" inputmode="decimal" step="any" id="e${i}bm" data-k="p.${i}.lab.m" value="${esc(p.lab.m)}" aria-label="Lab exam out of"></td><td class="x"></td></tr>`;
     }
-    return `<tbody><tr class="grp"><th colspan="5"><div class="grp-row"><span>${PNAMES[i]}</span><span class="grp-stats" id="o${i}"></span>
-      <button class="link" data-act="mode" data-i="${i}" data-m="${p.mode==='quick'?'itemized':'quick'}">${p.mode==='quick'?'Enter item scores instead':'Use ERP points instead'}</button></div></th></tr>${rows}</tbody>`;
+    return `<tbody class="${closed?'closed':''}"><tr class="grp"><th colspan="5"><div class="grp-row"><button class="per-name" data-act="toggle-per" data-i="${i}" tabindex="-1">${PNAMES[i]}</button><span class="grp-stats" id="o${i}"></span>
+      ${closed?'':`<button class="link" data-act="mode" data-i="${i}" data-m="${p.mode==='quick'?'itemized':'quick'}">${p.mode==='quick'?'Enter item scores instead':'Use ERP points instead'}</button>`}
+      <button class="per-tog" data-act="toggle-per" data-i="${i}" aria-expanded="${!closed}" aria-label="${closed?'Show':'Hide'} ${PNAMES[i]} scores"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></div></th></tr>${closed?'':rows}</tbody>`;
   }).join('');
   const m=s.periods[2].method||'raw';
   document.getElementById('panel-course').innerHTML=`
-    <div class="page-head"><h1>Grades for ${esc(s.code||s.name)}</h1>
-      <label class="f" for="subSel" style="min-width:min(100%,320px)">Subject<select id="subSel">${opts}</select></label></div>
-    <p class="lead">${esc(s.name)} · Blank scores are not counted.</p>
+    <div class="course-head"><div><p class="course-eyebrow">${esc(semLabel())}</p><h1>Grades for ${esc(s.code||s.name)}</h1>
+      <p class="lead">${esc(s.name)}</p></div>
+      <label class="f course-pick" for="subSel">Subject<select id="subSel">${opts}</select></label></div>
     <div class="srcbar"><span class="small muted">Compute my grade from</span>
-      <div class="seg2" role="group" aria-label="Grade source"><button data-act="src" data-v="erp" aria-pressed="${s.src==='erp'}">ERP class record</button><button data-act="src" data-v="items" aria-pressed="${s.src!=='erp'}">Canvas items</button></div></div>
-    <div class="two">
-      ${s.src==='erp'?`<div class="erp-view">${erpHTML(s)}</div>`:`<div class="gtable-wrap"><table class="gt">
+      <div class="seg2" role="group" aria-label="Grade source"><button data-act="src" data-v="erp" aria-pressed="${s.src==='erp'}">ERP class record</button><button data-act="src" data-v="items" aria-pressed="${s.src!=='erp'}">Canvas items</button></div>
+      <span class="hint-txt">Blank scores are not counted.</span></div>
+    <div class="two course-grid">
+      ${s.src==='erp'?`<div class="erp-view">${erpHTML(s)}</div>`:`<div style="min-width:0"><div class="gtable-wrap"><table class="gt">
         <thead><tr><th>Name</th><th class="per">Period</th><th class="num">Score</th><th class="num">Out of</th><th class="x"><span hidden>Remove</span></th></tr></thead>
-        ${groups}</table></div>`}
+        ${groups}</table></div><p class="note">Scores you enter here also fill in your <b>ERP class record</b>, term by term.</p></div>`}
       <aside class="side">
         <section class="box"><h2>Grade summary</h2><div id="sumBox"></div>
           <div class="btnrow"><button class="btn primary" data-act="send">Save as my final grade</button><button class="btn" data-act="pdf-course">Download PDF</button></div>
@@ -690,6 +750,29 @@ function renderCourse(){
     </div>`;
   updateCourse();updateErp();
 }
+function periodHasData(p){return p.mode==='quick'?(p.cs!==''&&p.cs!=null)||(p.ex!==''&&p.ex!=null):p.items.some(it=>it.n||it.s||it.m)||!!(p.lec.s||p.lec.m||p.lab.s||p.lab.m)}
+/* a term starts closed when it comes after the term you're working on and has nothing in it yet */
+function isClosed(p,i,firstOpen){if(typeof p.closed==='boolean')return p.closed;return firstOpen>=0&&i>firstOpen&&!periodHasData(p)}
+/* copy Canvas items scores into the ERP class record, one term at a time; terms with nothing entered keep their ERP scores */
+function syncErpFromItems(s){
+  ensureErp(s);
+  s.periods.forEach((p,k)=>{
+    if(!periodHasData(p))return;
+    if(p.mode==='quick'){
+      if(p.cs!==''&&p.cs!=null)s.erp.cols[k]=[{l:'Class standing',m:String(s.csW),s:String(p.cs)}];
+      if(p.ex!==''&&p.ex!=null)s.erp.ex[k]={m:String(s.exW),s:String(p.ex)};
+      return;
+    }
+    const its=p.items.filter(it=>it.n||it.s||it.m);
+    if(its.length)s.erp.cols[k]=its.map((it,j)=>({l:it.n||('Item '+(j+1)),m:String(it.m??''),s:String(it.s??'')}));
+    const ls=num(p.lec.s),lm=num(p.lec.m),bs=num(p.lab.s),bm=num(p.lab.m);
+    const L=lm>0,B=bm>0;
+    if(!L&&!B)return;
+    if(L&&B&&p.method==='raw'){s.erp.ex[k]={m:String(lm+bm),s:ls==null&&bs==null?'':String((ls||0)+(bs||0))};return}
+    if(L&&B){const e=examPct(p);s.erp.ex[k]={m:'100',s:e==null?'':String(Math.round(e*10000)/100)};return}
+    const sc=L?ls:bs,mx=L?lm:bm;s.erp.ex[k]={m:String(mx),s:sc==null?'':String(sc)};
+  });
+}
 function updateCourse(){
   const s=sub();const R=compute(s);const P=num(s.pass)??50;
   R.forEach((r,i)=>{
@@ -698,8 +781,9 @@ function updateCourse(){
     el.innerHTML=`<span>Class standing <b>${f2(r.cs)}</b>/${f2(r.cw)}</span><span>Exam <b>${f2(r.ex)}</b>/${f2(r.ew)}</span><span class="chip ${cls}">${g==null?'incomplete':gradeText(g)}</span>`;
   });
   const sb=document.getElementById('sumBox');
-  if(sb)sb.innerHTML=`<div class="sum-terms">${R.slice(0,2).map((r,i)=>`<div class="sum-row"><span>${PNAMES[i]}</span><span><b>${gradeText(r.grade)}</b><small>${r.tr==null?'':f2(r.tr)}</small></span></div>`).join('')}</div>
-    <div class="sum-final"><span>Final grade<br><small class="muted" style="font-weight:400">${R[2].tr==null?'Finish all three periods':'Transmuted '+f2(R[2].tr)}</small></span><b>${gradeText(R[2].grade)}</b></div>`;
+  const fg=R[2].grade;
+  if(sb)sb.innerHTML=`<div class="gs-terms">${R.slice(0,2).map((r,i)=>`<div class="gs-term"><span>${PNAMES[i]}</span><b>${gradeText(r.grade)}</b><small>${r.tr==null?'Not yet computed':'Transmuted '+f2(r.tr)}</small></div>`).join('')}</div>
+    <div class="gs-final ${fg==null?'none':fg>3?'bad':''}"><div><span class="gs-label">Final grade</span><span class="gs-sub">${R[2].tr==null?'Finish all three periods':'Transmuted '+f2(R[2].tr)}</span></div><b>${gradeText(fg)}</b></div>`;
   const L=document.getElementById('ladder');if(!L)return;const f=R[2];
   if(s.src==='erp'){L.innerHTML=erpLadder(s);return}
   if(R[0].term==null||R[1].term==null){L.innerHTML='<p class="note" style="margin:0">Fill in Prelim and Midterm first.</p>'}
@@ -940,13 +1024,13 @@ function onField(e){
   if(el.dataset.move){if(!ch)return;const [i,j]=el.dataset.move.split('.').map(Number);const to=+el.value;const s=sub();
     const it=s.periods[i].items.splice(j,1)[0];if(!s.periods[i].items.length)s.periods[i].items.push({n:'',s:'',m:''});
     const tp=s.periods[to];if(tp.items.length===1&&!tp.items[0].n&&!tp.items[0].s&&!tp.items[0].m)tp.items=[];tp.items.push(it);
-    save();renderCourse();return}
+    syncErpFromItems(s);save();renderCourse();return}
   if(el.dataset.erp){const s=sub();const q=el.dataset.erp.split('.');
     if(q[0]==='c')s.erp.cols[+q[1]][+q[2]][q[3]]=el.value;else s.erp.ex[+q[1]][q[2]]=el.value;
     save();updateErp();updateCourse();return}
   if(el.dataset.info){const s=sub();s.info[el.dataset.info]=el.value;save();return}
-  if(el.dataset.adv){const s=sub();s.periods.forEach(p=>p[el.dataset.adv]=el.value);save();const wl=document.getElementById('advLecWl');if(wl)wl.hidden=s.periods[2].method!=='w';updateCourse();return}
-  if(el.dataset.k){setPath(el.dataset.k,el.value);save();
+  if(el.dataset.adv){const s=sub();s.periods.forEach(p=>p[el.dataset.adv]=el.value);syncErpFromItems(s);save();const wl=document.getElementById('advLecWl');if(wl)wl.hidden=s.periods[2].method!=='w';updateCourse();return}
+  if(el.dataset.k){setPath(el.dataset.k,el.value);if(el.dataset.k.startsWith('p.'))syncErpFromItems(sub());save();
     if(['sub.csW','sub.exW'].includes(el.dataset.k)&&ch){renderCourse();return}
     if(el.dataset.k==='sub.code'||el.dataset.k==='sub.name')renderCrumbs();
     updateCourse();return}
@@ -979,9 +1063,10 @@ root.addEventListener('click',e=>{
   if(a==='erp-edit'){ERP_EDIT=!ERP_EDIT;renderCourse();return}
   if(a==='erp-add'){const k=+b.dataset.p;s.erp.cols[k].push({l:'Activity',m:'',s:''});save();renderCourse();const el=document.getElementById('ec'+k+'l'+(s.erp.cols[k].length-1));if(el){el.focus();el.select()}return}
   if(a==='erp-del'){const k=+b.dataset.p;if(s.erp.cols[k].length>1){s.erp.cols[k].splice(+b.dataset.j,1);save();renderCourse()}return}
-  if(a==='mode'){s.periods[+b.dataset.i].mode=b.dataset.m;save();renderCourse();return}
+  if(a==='mode'){s.periods[+b.dataset.i].mode=b.dataset.m;syncErpFromItems(s);save();renderCourse();return}
+  if(a==='toggle-per'){const i=+b.dataset.i;const p=s.periods[i];p.closed=!isClosed(p,i,compute(s).findIndex(r=>r.term==null));save();renderCourse();const t=document.querySelector(`.per-tog[data-i="${i}"]`);if(t)t.focus();return}
   if(a==='add-item'){const i=+b.dataset.i;const p=s.periods[i];p.items.push({n:'',s:'',m:''});save();renderCourse();const el=document.getElementById('i'+i+'n'+(p.items.length-1));if(el)el.focus();return}
-  if(a==='del-item'){const p=s.periods[+b.dataset.i];p.items.splice(+b.dataset.j,1);if(!p.items.length)p.items.push({n:'',s:'',m:''});save();renderCourse();return}
+  if(a==='del-item'){const p=s.periods[+b.dataset.i];p.items.splice(+b.dataset.j,1);if(!p.items.length)p.items.push({n:'',s:'',m:''});syncErpFromItems(s);save();renderCourse();return}
   if(a==='add-sub'){const n=blankSubject();n.name='Custom subject';S.subjects.push(n);S.cur=n.id;save();renderCourse();renderCrumbs();const c=document.getElementById('sCode');if(c){c.closest('details').open=true;c.focus()}return}
   if(a==='del-sub'){const t=arm(b,'Click again to clear all scores',delArm);if(t){delArm=t;return}delArm=0;s.periods=[blankPeriod(),blankPeriod(),blankPeriod()];s.erp={cols:s.erp.cols.map(c=>c.map(x=>({l:x.l,m:x.m,s:''}))),ex:s.erp.ex.map(x=>({m:x.m,s:''}))};save();renderCourse();return}
   if(a==='clear-gwa'){const t=arm(b,'Click again to clear',clrArm);if(t){clrArm=t;return}clrArm=0;S.gwa.grades={};save();renderGWA();renderMine();return}
